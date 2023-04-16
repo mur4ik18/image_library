@@ -1,0 +1,22 @@
+.collection_section__box_exp {
+    margin-top: 20px !important;
+    max-width: 1580px !important;
+    display: flex !important;
+    flex-direction: column !important;
+    grid-gap: 30px;
+}
+
+.card_imagebox_box {
+    width: 525px !important;
+    height: 525px !important;
+}
+
+.card_imagebox_box img {
+    width: 525px !important;
+    height: 525px !important;
+    object-fit: contain;
+}
+
+.card__data3 {
+    padding: 30px;
+}

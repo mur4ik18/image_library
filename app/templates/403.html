@@ -1,0 +1,75 @@
+<style>
+    @import url('https://fonts.googleapis.com/css?family=Montserrat|Open+Sans&display=swap');
+    
+    * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+        position: relative;
+    }
+    
+    body {
+        background-color: rgb(170,251,170);
+        color: rgb(61, 61, 61);
+        font-family: 'Open Sans', sans-serif;
+    }
+    
+    h1 {
+        color: black;
+        font-family: 'Montserrat', sans-serif;
+        font-size: 3.6em;
+        font-weight: lighter;
+        margin: 40px auto;
+        text-align: center;
+    }
+    
+    .container {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+    }
+    .container .col {
+        /* border: 1px dashed black; */
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        text-align: center;
+      /* // width: 30%; */
+    }
+    .container img {
+        /* border: 1px solid black; */
+        margin: -10px auto 0;
+        width: 20vw;
+    }
+    .container h4 {
+        /* border: 1px solid black; */
+        font-size: 1.5em;
+        font-weight: lighter;
+        padding: 10px;
+    }
+    .container h5 {
+        font-size: 1.3em;
+        font-weight: lighter;
+        padding: 10px;
+    }
+    .container p {
+        font-size: 0.9em;
+        margin: 20px;
+    }
+    .container a {
+        color: rgb(140, 140, 180);
+        text-decoration: none;
+    }
+    </style>
+    <h1>403 Error</h1>
+    
+    <div class='container'>
+      <div class='col'>
+        <h4>Oops, something went wrong.</h4>
+        <h5>You do not have enough rights for that</h5>
+        <p>Click here to open <a href="{% url 'home_page' %}">home page</a></p>
+      </div>
+      <div class='col'>
+        <img src='https://media2.giphy.com/media/830H0uF08yM5J29qjf/source.gif'/>
+      </div>
+    </div>

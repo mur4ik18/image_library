@@ -1,0 +1,419 @@
+{% extends 'base.html' %}
+
+{% block content%}
+<script type="text/javascript">
+  // A CSRF token is required when making post requests in Django
+  // To be used for making AJAX requests in script.js
+  window.CSRF_TOKEN = "{{ csrf_token }}";
+</script>
+<section id="section_1">
+    <div class="container">
+        <h3 class="head_title">{{ post.author}}</h3>
+    </div>
+    <div class="container">
+        <div class="row">
+            <div class="col-8 center">
+                <div class="post_card">
+                    <img src="{{post.image.url}}" alt="image created by {{ post.author }}">
+                </div>
+                
+            </div>
+            <div class="col-4">
+                <ul class="list-group mb-3">
+                    <li class="list-group-item d-flex justify-content-between lh-condensed">
+                      <div>
+                        <h6 class="my-0">Author</h6>
+                        <!-- <small class="text-muted">Brief description</small> -->
+                      </div>
+                      <span class="text-muted">{{ post.author }}</span>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between lh-condensed">
+                      <div>
+                        <h6 class="my-0">Url to post</h6>
+                        <!-- <small class="text-muted">Brief description</small> -->
+                      </div>
+                      <span class="text-muted ellipsis"><a href="{{ post.post_url }}">Instagram link</a></span>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between lh-condensed">
+                        <div>
+                          <h6 class="my-0">When posted</h6>
+                          <!-- <small class="text-muted">Brief description</small> -->
+                        </div>
+                        <span class="text-muted">{{ post.date }}</span>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between lh-condensed">
+                        <div>
+                          <h6 class="my-0">Likes :</h6>
+                          <!-- <small class="text-muted">Brief description</small> -->
+                        </div>
+                        <span class="text-muted">{{ post.likes }}</span>
+                        <div>
+                        <h6 class="my-0">Comments :</h6>
+                        <!-- <small class="text-muted">Brief description</small> -->
+                        </div>
+                        <span class="text-muted">{{ post.comments }}</span>
+                    </li>
+                  </ul>
+                {% if request.user.is_authenticated %}
+                <ul class="list-group mb-3">
+                    <li class="list-group-item d-flex justify-content-between lh-condensed">
+                      <div>
+                        <h6 class="my-0">Download image</h6>
+                        <!-- <small class="text-muted">Brief description</small> -->
+                      </div>
+                      <span class="text-muted"><a href="{{post.image.url}}" download>Download!</a></span>
+                    </li>
+                </ul>
+              {% if post.accessed %}
+                <ul class="list-group mb-3">
+                    {% if perms.posts_collections.add_collection %}
+                    <li class="list-group-item d-flex lh-condensed">
+                        <h6 class="my-0">Create collection</h6>
+                        <form method="POST" enctype="multipart/form-data">
+                            {% csrf_token %}
+                            <div class="row page_create_coll">
+                              <input type="text" name="create_collection_name" id="page_create_coll_inp">
+                              <button class="btn btn-primary btn-sm" type="submit" id="page_create_coll_btn">Create</button>
+                            </div>
+                        </form>  
+                    </li>
+                    {% endif %}
+                    {% if perms.posts_collections.change_collection %}
+                    <li class="list-group-item d-flex justify-content-between lh-condensed">
+                      <div>
+                        <h6 class="my-0">Add to collection</h6>
+                        <!-- <small class="text-muted">Brief description</small> -->
+                      </div>
+                      <span class="text-muted">
+                        <form action="" method="POST" enctype="multipart/form-data">
+                          {% csrf_token %}
+                          {% if collcount != 0 %}
+                          <input style='max-width:150px' name="sellect_to_save_in_collection" list="brow" class='pop' placeholder='Choose the collection'>
+                          <datalist id="brow">
+                          {% for coll in collections %}
+                            <option value="{{coll.title}}">{{coll.title}}</option>
+                          {% endfor %}
+                          </datalist>  
+
+                          <button class="btn btn-primary btn-sm" type="submit">Add!</button>
+                          {% else %}
+                            Please create new collection!
+                          {% endif %}
+                        </form>  
+                      </span>
+                    </li>
+                    {% endif %}
+                </ul>
+                {%endif%}
+                {% if perms.posts_collections.view_collection %}
+                <ul class="list-group mb-3">
+                  <li class="list-group-item lh-condensed">
+                      <h6 class="my-0">This image has been added to the following collections:</h6>
+                      {%for collection in post.collections.all %}
+                        <span class="text-muted">{{collection}} ,</span>
+                      {% endfor %}
+                  </li>
+                </ul>
+                {%endif%}
+              {% endif %} 
+                <ul class="list-group mb-3">
+                  {% if perms.posts.add_tag %}
+                  <div class="row add_tag_box">
+                    <input type="text" name="add_tag_name" id="new_tag_name">
+                    <a class="btn btn-primary btn-sm" name="add_tag_btn" id="add_tag_btn" data-post_id="{{post.id}}">Add tag</a>
+                  </div>
+                  {%endif%}
+                  {% if perms.posts.view_tag %}
+                  <li  class="tags_outp list-group-item lh-condensed">
+                    <div id='tags' class="tags">
+                      {% include 'posts/page_tags.html' %}
+                    </div>
+                  </li>
+                  {% endif %}
+                </ul>
+                
+              {% if post.accessed %}
+              <div>
+                {% if post.image_field == ""%}
+                {% if perms.posts.change_post %}
+                <ul class="list-group mb-3">
+                  <li class="tags_outp list-group-item lh-condensed">
+                    <form method="post" class='row justify-content-between'>
+                      {% csrf_token %}
+                      <input type="text" name="image_field_text" class="col-6">
+                      
+                      <input type="hidden" name="post_page_image_field" value="{{post.id}}">
+                      <input type="submit" value="Add web. description" class="col-5 btn-primary btn-sm btn">
+                    </form>
+                  </li>
+                </ul>
+                {%endif%}
+                {% else %}
+                <ul class="list-group mb-3">
+                  <li class="tags_outp list-group-item lh-condensed">{{ post.image_field }} {% if perms.posts.change_post %}<a id='edit_image_field' class="btn btn-primary btn-sm">edit web description</a>{%endif%}</li>
+                  {% if request.user.is_authenticated %}
+                  <form id='image_field_form' method="post" class='hiden row justify-content-between'>
+                    {% csrf_token %}
+                    <input type="text" name="image_field_text" class="col-6">
+                    
+                    <input type="hidden" name="post_page_image_field" value="{{post.id}}">
+                    <input type="submit" value="Add web. description" class="col-5 btn-primary btn-sm btn">
+                  </form>
+                  {%endif%}
+                </ul>
+                {% endif %}
+
+                
+                {% if post.alt_name == ""%}
+                {% if perms.posts.change_post %}
+                <ul class="list-group mb-3">
+                  <li class="tags_outp list-group-item lh-condensed">
+                    <form method="post" class='row justify-content-between'>
+                      {% csrf_token %}
+                      <input type="text" name="page_alt_name" class="col-6">
+                      
+                      <input type="hidden" name="post_page_alt_name" value="{{post.id}}">
+                      <input type="submit" value="Add alt name" class="col-5 btn-primary btn-sm btn">
+                    </form>
+                  </li>
+                </ul>
+                {%endif%}
+                {% else %}
+                <ul class="list-group mb-3">
+                  <li class="tags_outp list-group-item lh-condensed">{{ post.alt_name }} {% if perms.posts.change_post %}<a id='edit_alt_name' class="btn btn-primary btn-sm">edit alt name</a>{%endif%}</li>
+                  {% if perms.posts.change_post %}
+                  <form id='alt_name_form' method="post" class='hiden row justify-content-between'>
+                    {% csrf_token %}
+                    <input type="text" name="page_alt_name" class="col-6">
+                    
+                    <input type="hidden" name="post_page_alt_name" value="{{post.id}}">
+                    <input type="submit" value="Add alt name" class="col-5 btn-primary btn-sm btn">
+                  </form>
+                  {%endif%}
+                </ul>
+                {% endif %}
+
+                {% if post.file_name == ""%}
+                {% if perms.posts.change_post %}
+                <ul class="list-group mb-3">
+                  <li class="tags_outp list-group-item lh-condensed">
+                    <form method="post" class='row justify-content-between'>
+                      {% csrf_token %}
+                      <input type="text" name="page_file_name" class="col-6">
+                      
+                      <input type="hidden" name="post_page_file_name" value="{{post.id}}">
+                      <input type="submit" value="Add file name" class="col-5 btn-primary btn-sm btn">
+                    </form>
+                  </li>
+                </ul>
+                {%endif%}
+                {% else %}
+                <ul class="list-group mb-3">
+                  <li class="tags_outp list-group-item lh-condensed">{{ post.file_name }} {% if perms.posts.change_post %}<a id='file_alt_name' class="btn btn-primary btn-sm">edit file name</a>{%endif%}</li>
+                  {% if perms.posts.change_post %}
+                  <form id="file_name_form" class='hiden row justify-content-between' method="post">
+                    {% csrf_token %}
+                      <input type="text" name="page_file_name" class="col-6">
+                      
+                      <input type="hidden" name="post_page_file_name" value="{{post.id}}">
+                      <input type="submit" value="Add file name" class="col-5 btn-primary btn-sm btn">
+                  </form>
+                  {%endif%}
+                </ul>
+                {% endif %}
+              </div>
+              {%endif%}
+                {% if perms.posts.delete_post %}
+                <ul class="list-group mb-3">
+                  <li class="tags_outp list-group-item lh-condensed">
+                    <form id="image_field_form" method="post">
+                      {% csrf_token %}
+                      <input type="hidden" name="delete_that_post" value="{{ post.id }}">
+                      <input type="submit" value='Delete this post' class='btn-primary btn-sm btn' name="delete_that_post1">
+                    </form>
+                  </li>
+                  
+                </ul>
+                {%endif%}
+                
+                <ul class="list-group mb-3">
+                  <li class="tags_outp list-group-item lh-condensed">
+
+                        <h5 class="my-0">    Ai caption</h5>
+                      <p>-- {{ post.ai_caption }} --</p>
+                  </li>
+                </ul>
+                <ul class="list-group mb-3">
+                  <li class="tags_outp list-group-item lh-condensed">
+                        <h5 class="my-0">    Ai description</h5>
+                      <p>-- {{ post.ai_description }} --</p>
+                  </li>
+                </ul>
+            </div>
+
+        </div>
+    </div>
+</section>
+<section id="section_2">
+  
+    <div class="container">
+        <p>{{ post.caption }}</p>
+        <h6>Hashtags</h6>
+        <div class="hashtags">
+          <p class="post_hastags">{{ post.hashtags }}</p>
+        </div>
+    </div>
+    <div class="container">
+      <h6>Comments</h6>
+      <div class="comment_box">
+
+      {% for comment in comments %}
+        <div class="comment_card">
+          <p>{{ comment }}</p>
+        </div>
+      {% endfor %}
+      </div>
+    </div>
+    
+</section>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+<script>
+  $('#edit_image_field').on('click', function() {
+    var form = $("#image_field_form")
+    form.removeClass('hiden')
+  })
+  $('#edit_alt_name').on('click', function() {
+    var form = $("#alt_name_form")
+    form.removeClass('hiden')
+  })
+  $('#file_alt_name').on('click', function() {
+    var form = $("#file_name_form")
+    form.removeClass('hiden')
+  })
+  $('#category_name').on('click', function() {
+    var form = $("#category_form")
+    form.removeClass('hiden')
+  })
+</script>
+<script type="text/javascript">
+  {% comment %} (function($) {
+    $('#add_tag_btn').on('click', function() {
+      var link = $(this);
+      var postid = link.data('postid');
+      var tagname = $('#new_tag_name').val();
+      $.ajax({
+        type: 'post',
+        url: '/post_add_tag/',
+        data: {
+          'postid': postid,
+          'tagname': tagname,
+          'csrfmiddlewaretoken': window.CSRF_TOKEN // from index.html
+        },
+        success: function(data) {
+          // append html to the posts div
+          $('#new_tag_name').val('');
+          $('#tags').html(data.posts_html);
+        },
+        error: function(xhr, status, error) {
+          // shit happens friends!
+        }
+      });
+    });
+  }(jQuery)); {% endcomment %}
+</script>
+<script type="text/javascript">
+  (function($) {
+    $('#add_tag_btn').click(function(){
+        let postid = $(this).data('post_id');
+        let tagname = $(this).siblings("#new_tag_name").val();
+        const input_tag = $(this).siblings("#new_tag_name")
+        $.ajax({
+        type: 'post',
+        url: '/api/add_new_tag/',
+        data: {
+            'post_id': postid,
+            'tag_name': tagname,
+            'csrfmiddlewaretoken': window.CSRF_TOKEN 
+        },
+        success: function(data) {
+            // append html to the posts div
+            input_tag.val('');
+            $('.tags').html(data.posts_html);
+        },
+        error: function(xhr, status, error) {
+            // shit happens friends!
+        }
+        });
+    });
+    }(jQuery));
+    $('.tags').click(function(event){
+      if (!$(event.target).closest('.delete_tag_btn')) return;
+      var postid = $(event.target).data('postid');
+      var tagname = $(event.target).data('tagname');
+      $.ajax({
+      type: 'post',
+      url: '/api/delete_tag/',
+      data: {
+          'post_id': postid,
+          'tag_name': tagname,
+          'csrfmiddlewaretoken': window.CSRF_TOKEN 
+      },
+      success: function(data) {
+          // append html to the posts div
+          $('.tags').html(data.posts_html);
+      },
+      error: function(xhr, status, error) {
+          // shit happens friends!
+      }
+      });
+  });
+
+  {% comment %} $('.delete_tag_btn').click(function(){
+    $(this).addClass('active_del')
+      // var tagid = $(this).data('')
+      var postid = $('.active_del').data('post_id');
+      var tagname = $('.active_del').data('tag_name');
+      console.log(postid);
+      $.ajax({
+      type: 'post',
+      url: '/post_delete_tag/',
+      data: {
+          'postid': postid,
+          'tagname': tagname,
+          'csrfmiddlewaretoken': window.CSRF_TOKEN // from index.html
+      },
+      success: function(data) {
+          // append html to the posts div
+          $('#tags').html(data.posts_html);
+      },
+      error: function(xhr, status, error) {
+          // shit happens friends!
+      }
+      });
+  });
+  (function($) {
+  $('.active_del').on('click', function() {
+      // var tagid = $(this).data('')
+      var postid = $(this).data('post_id');
+      var tagname = $(this).data('tag_name');
+      console.log(postid);
+      $.ajax({
+      type: 'post',
+      url: '/post_delete_tag/',
+      data: {
+          'postid': postid,
+          'tagname': tagname,
+          'csrfmiddlewaretoken': window.CSRF_TOKEN // from index.html
+      },
+      success: function(data) {
+          // append html to the posts div
+          $('#tags').html(data.posts_html);
+      },
+      error: function(xhr, status, error) {
+          // shit happens friends!
+      }
+      });
+  });
+  }(jQuery)); {% endcomment %}
+</script>
+{% endblock %}

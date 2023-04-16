@@ -1,0 +1,226 @@
+{% for project in object_list %}
+<div class="writer_box mb-3" id="{{project.id}}">
+    <div class="box_writer col-6">
+        <img src="http://34.208.90.101{{project.image.url}}" alt="">
+    </div>
+    <div class="box_writer col-5 ">
+        <div class="ogran row">
+            <h4>{% for i in project.collections.all %}| {{i}} | {% endfor %}<br> post-id: {{project.id}}</h4>
+            {% if project.image_field == ""%}
+
+            <ul class="list-group mb-3">
+              <li class="tags_outp list-group-item lh-condensed">
+                <form method="post" class='row justify-content-between'>
+                  {% csrf_token %}
+                  <textarea name="image_field_text" class="col-6 textarea_writers"></textarea>
+                  <input type="hidden" class="post_page_category" value="{{project.id}}">
+                  <a value="Add image description" class="send_data col-5 btn-primary btn-sm btn">Add image description</a>
+                </form>
+              </li>
+            </ul>
+
+            {% else %}
+            <ul class="list-group mb-3">
+              <li class="hiden tags_outp list-group-item lh-condensed"><span>{{ project.image_field }}</span><a class="edit_image_field btn btn-primary btn-sm">edit</a></li>
+              {% if request.user.is_authenticated %}
+              <form class=' image_field_form' method="post">
+                {% csrf_token %}
+                <input type="hidden" class="post_page_category" value="{{project.id}}">
+                <textarea name="image_field_text" class="col-6 textarea_writers">{{ project.image_field }}</textarea>
+                <a class='send_data col-5 btn-primary btn-sm btn' name="update_image_field">Edit image description</a>
+              </form>
+              {%endif%}
+            </ul>
+            {% endif %}
+
+            {% if project.file_name == ""%}
+            <ul class="list-group mb-3">
+              <li class="tags_outp list-group-item lh-condensed">
+                <form method="post" class='row justify-content-between'>
+                  {% csrf_token %}
+                  <textarea name="page_file_name" class="col-6 textarea_writers textarea_writers__page_file_name"></textarea>
+                  
+                  <input type="hidden" class="post_page_category" value="{{project.id}}">
+                  <a value="Add image title" class="send_data col-5 btn-primary btn-sm btn" style='display: block;'>Add image title</a>
+                </form>
+              </li>
+            </ul>
+
+            {% else %}
+            <ul class="list-group mb-3">
+              <li class="hiden tags_outp list-group-item lh-condensed"><span>{{ project.file_name }}</span><a class="file_alt_name btn btn-primary btn-sm">edit</a></li>
+              <form class='file_name_form' method="post">
+                {% csrf_token %}
+                <input type="hidden" class="post_page_category" value="{{ project.id  }}">
+                <textarea name="page_file_name" class="col-6 textarea_writers textarea_writers__page_file_name">{{ project.file_name }}</textarea>
+                <a class='send_data col-5 btn-primary btn-sm btn' name="update_file_name">Edit image title</a>
+              </form>
+            </ul>
+            
+            {% endif %}
+            <ul class="list-group mb-3">
+              
+              <li  class="tags_outp list-group-item lh-condensed">
+                <div class="row add_tag_box">
+                  <input style="max-width:250px" type="text" name="add_tag_name">
+                  <a class="add_tag_btn btn btn-primary btn-sm" name="add_tag_btn" id="add_tag_btn" data-postid="{{project.id}}">Add tag</a>
+                </div>
+                <div class="tags">
+                  {% include 'import/non_improved_tags.html' %}
+                </div>
+              </li>
+            </ul>
+        </div>
+    </div>
+
+    <a name="Complete" class='complete_this_post col-5 btn-primary btn-sm btn' data-id="{{project.id}}">Approve</a>
+    <a name="send_to_writer" class='send_to_writer col-5 btn-primary btn-sm btn' data-id="{{project.id}}">Send in for revision</a>
+</div>
+{% endfor %}
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+<script type="text/javascript">
+  window.CSRF_TOKEN = "{{ csrf_token }}";
+</script>
+<script type="text/javascript">
+  $('.tags').click(function(event){
+      if (!$(event.target).closest('.delete_tag_btn')) return;
+      var postid = $(event.target).data('postid');
+      var tagname = $(event.target).data('tagname');
+      $.ajax({
+      type: 'post',
+      url: '/api/delete_tag/',
+      data: {
+          'post_id': postid,
+          'tag_name': tagname,
+          'csrfmiddlewaretoken': window.CSRF_TOKEN 
+      },
+      success: function(data) {
+          // append html to the posts div
+          $('#'+postid).find('.tags').html(data.posts_html);
+      },
+      error: function(xhr, status, error) {
+          // shit happens friends!
+      }
+      });
+  });
+</script>
+<script>
+  (function($) {
+    $('.add_tag_btn').click(function(){
+        let postid = $(this).data('postid');
+        let tagname = $(this).siblings("input").val();
+        const input_tag = $(this).siblings("input")
+        $.ajax({
+        type: 'post',
+        url: '/api/add_new_tag/',
+        data: {
+            'post_id': postid,
+            'tag_name': tagname,
+            'csrfmiddlewaretoken': window.CSRF_TOKEN 
+        },
+        success: function(data) {
+            // append html to the posts div
+            input_tag.val('');
+            $('#'+postid).find('.tags').html(data.posts_html);
+        },
+        error: function(xhr, status, error) {
+            // shit happens friends!
+        }
+        });
+    });
+    }(jQuery));
+
+  {% comment %} (jQuery)); {% endcomment %}
+  $('textarea').on('click',function(){
+    $('textarea').each(function(i,el){
+      $(el).removeClass('activeInp')
+    })
+    console.log('activeInp')
+    $(this).addClass('activeInp')
+  })
+
+
+  $('.edit_image_field').on('click', function() {
+    $(this).parent().siblings(".image_field_form").removeClass('hiden')
+  })
+  $('.file_alt_name').on('click', function() {
+      $(this).parent().siblings(".file_name_form").removeClass('hiden')
+  })
+</script>
+<script>
+  // ===================================================
+  // update post data
+  $('.send_data').click(function(){
+    let val = $(this).siblings("textarea");
+    let form = $(this).parent('form');
+    const se = $(this);
+    let pp = $(this).parent('form').siblings(".tags_outp");
+    let result = {
+      "name": $(this).siblings("textarea").attr('name'),
+      "id": $(this).siblings(".post_page_category").val(),
+      "collection_id": $(this).siblings("textarea").data('coll_id'),
+      "textaria": $(this).siblings("textarea").val(),
+    } 
+    
+    $.ajax({
+    type: 'post',
+    url: '/api/change_post_data/',
+    data: {
+        'admin':1,
+        'result': JSON.stringify(result),
+        'csrfmiddlewaretoken': window.CSRF_TOKEN // from index.html
+    },
+    
+    success: function(data) {
+        se.parent().addClass('hiden');
+        se.parent().siblings(".tags_outp").removeClass('hiden');
+        se.parent().siblings(".tags_outp").find('span')[0].innerHTML = data.text;
+    },
+    error: function(xhr, status, error) {
+      console.log(error);
+    }
+    });
+  });
+  // ==================================================
+  // complete one thing
+  $('.complete_this_post').click(function(){
+    const id = $(this).data('id')
+    $.ajax({
+    type: 'post',
+    url: '/api/approve_writer/',
+    data: {
+        'post_id': $(this).data('id'),
+        'csrfmiddlewaretoken': window.CSRF_TOKEN // from index.html
+    },
+    
+    success: function(data) {
+        // append html to the posts div
+        $('#'+id).remove()
+    },
+    error: function(xhr, status, error) {
+        // shit happens friends!
+    }
+    });
+  });
+
+
+  $('.send_to_writer').click(function(){
+    const id = $(this).data('id')
+    $.ajax({
+    type: 'post',
+    url: '/api/send_to_revision/',
+    data: {
+        'post_id': $(this).data('id'),
+        'csrfmiddlewaretoken': window.CSRF_TOKEN // from index.html
+    },
+    
+    success: function(data) {
+        // append html to the posts div
+        $('#'+id).remove()
+    },
+    error: function(xhr, status, error) {
+        // shit happens friends!
+    }
+    });
+  });
+</script>

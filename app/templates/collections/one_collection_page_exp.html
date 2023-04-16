@@ -1,0 +1,140 @@
+{% extends 'base.html' %}
+{% block content%}
+    <section class='collection_section'>
+        <h1 class="collection_header">{{ title }}</h1>
+        <div class='collection_rename_delete_box'>
+          <div class="collection_delete_rename_btn">
+
+
+            {% if request.user.is_authenticated and perms.posts_collections.delete_collection%}
+              <form method="post" class='delete_class' onsubmit="return confirm('Do you really want delete this collection?');">
+                  {% csrf_token %}
+                  <h6><input type="submit" name="delete_collection" class='btn-primary btn-sm btn' value="Delete collection"></h6>
+              </form>
+            {% endif %}
+              
+            {% if request.user.is_authenticated and perms.posts_collections.change_collection%}
+              <input id='rename' type="submit" class='btn-primary btn-sm btn' value="Rename collection">
+              <form method="post" class="rename_class hiden">
+                  {% csrf_token %}
+                  <input name='rename_input' type="text">
+                  <h6><input type="submit" name="rename_button" class='btn-primary btn-sm btn' value="Rename collection"></h6>
+              </form>
+            {% endif %}
+            <h6><a class='btn-primary btn-sm btn' style="margin-left: 5px; height: 32px" href="{% url 'collections_solo' collection_id %}">Original</a></h6>
+          </div>
+        </div>
+        {% if request.user.is_authenticated and perms.posts_collections.view_collection%}
+        <form method="post">
+            {% csrf_token %}
+            <input type="submit" name="download_collection" class='btn-primary btn-sm btn' value="Download">
+        </form>
+        {% endif %}
+        <div class="row">
+          <div class="col">
+            {% if request.user.is_authenticated and perms.posts_collections.send_collection %}
+            <form method="post">
+                {% csrf_token %}
+                <select name="sellect_to_send">
+                  {% for coll in writers %}
+                    <option value="{{coll.id}}">{{coll.username}}</option>
+                  {% endfor %}
+                </select>
+                <input type="submit" name="send_to_writer_non" class='btn-primary btn-sm btn mt-2' value="Send unapproved collection to writer">
+                <input type="submit" name="send_to_writer" class='btn-primary btn-sm btn mt-2' style="color: black;background-color: #DCDCDC;border-color: #DCDCDC;" value="Send collection to writer">
+            </form>
+            <p>{% for writer in collection_writer%}
+              {{ writer }} ,
+            {% endfor %}</p>
+            {% endif %}
+            {% if request.user.is_authenticated and perms.posts_collections.change_collection and perms.posts.add_tag %}
+            <div id="massive_add_tags_form" method="POST" enctype="multipart/form-data">
+                <span>Add tags for all posts in collection : </span>
+                <input type="text" id="add_massive_tag_name" data-collection_id="{{collection_id}}">
+                <button type="submit" class='btn-primary btn-sm btn' value="Add tags" id="add_massive_tag_btn" data-title='{{title}}'>Add tags</button>
+            </div>
+          </div>
+          <div class="col-3">
+            <p id="calc_posts"></p>
+            <p id="unique_posts"></p>
+          </div>
+          <p id="dublicats"></p>
+        </div>
+        {% endif %}
+        <div id="exp collection_section__box" class="collection_section__box_exp">
+          {% include 'collections/one_coll_posts_exp.html' %}
+        </div>
+    </section>
+
+
+<script type="text/javascript">
+  // A CSRF token is required when making post requests in Django
+  // To be used for making AJAX requests in script.js
+  window.CSRF_TOKEN = "{{ csrf_token }}";
+</script>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+<script type="text/javascript">
+  document.addEventListener("DOMContentLoaded", function(event) { 
+    let array_with_posts = document.getElementsByClassName("collection_section__card");
+    let calc_unique = 0;
+    let authors_posts = [];
+    let d = '';
+    let resultats_duplicates = [];
+    Array.from(array_with_posts).forEach(e => {
+      box = e.querySelector(".but4");
+      let res = box.textContent.split(",");
+      authors_posts.push(e.querySelector(".author_post").textContent);
+      if (res.length <= 2){
+        calc_unique++;
+      }
+
+    })
+    duplicates = [...new Set(authors_posts.filter((e, i, a) => a.indexOf(e) !== i))]
+    Array.from(duplicates).forEach(e=>{
+      d= d + e + ", ";
+    })
+    
+    document.getElementById("calc_posts").innerHTML = "Images in collection: " + array_with_posts.length;
+    document.getElementById("unique_posts").innerHTML = "Images in one collection: " + calc_unique;
+    document.getElementById("dublicats").innerHTML = "Duplicates : " + d;
+  });
+
+
+  (function($) {
+  $('#add_massive_tag_btn').click(function() {
+    const tag_tag = $("#add_massive_tag_name");
+    var tag = $("#add_massive_tag_name").val();
+    var collection_id = $("#add_massive_tag_name").data("collection_id");
+    $.ajax({
+      type: 'post',
+      url: '/api/collections_massive_add_tag/',
+      data: {
+        'tag': tag,
+        'collid' : collection_id,
+        'csrfmiddlewaretoken': window.CSRF_TOKEN
+      },
+      success: function(data) {
+        tag_tag.val('')
+        location.reload();
+      },
+      error: function(xhr, status, error) {
+        // shit happens friends!
+      }
+    });
+  });
+}(jQuery));
+
+</script>
+  
+<script type="text/javascript">
+  (function($){
+    $('#rename').click(function(){
+      $(this).addClass('hiden')
+      $('.rename_class').removeClass('hiden')
+      $('.rename_class').removeClass('hiden')
+      $('.delete_class').addClass('hiden')
+    });
+  }(jQuery));
+</script>
+{% endblock %}

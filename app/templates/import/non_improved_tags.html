@@ -1,0 +1,7 @@
+{% for tag in project.tags.all %}
+<span id="delete_tag">
+    <span class="tag_box tags_each text-muted" value="{{tag}}">{{ tag }}
+        <button class="delete_tag_btn delete_tag btn btn-primary btn-sm" data-collection_id='{{collection_id}}' data-tagname='{{tag}}' data-postid='{{project.id}}'>del</button>
+    </span>
+</span>
+{% endfor %} 

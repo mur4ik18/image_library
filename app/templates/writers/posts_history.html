@@ -1,0 +1,91 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<section class="conteiner">
+    <div id="posts" class="row">
+        {% for postg in object_list %}
+            <div class="writer_box" style="width: 1400px; margin-top: 10px">
+                
+                <div class="box_writer col-5">
+                    <img src="http://34.208.90.101/images/{{postg.post.image}}" alt="">
+                </div>
+
+                <div class="box_writer col-7 ">
+                    <h4>{% for i in postg.post.collections.all %}| {{i.title}} | {% endfor %}</h4>
+                    <h4>Writer: {{ postg.writer }}</h4>
+                    <div class="ogran row">
+                        <ul class="row justify-content-center">
+                            <li class="tags_outp list-group-item lh-condensed col" style="border: 1px solid rgba(0,0,0,.125); max-width: 270px; margin-right: 5px"><b>Writer`s version</b></li>
+                            <li class="tags_outp list-group-item lh-condensed col" style="border: 1px solid rgba(0,0,0,.125); max-width: 270px; margin-right: 5px"><b>Editor`s Version</b></li>
+                            <li class="tags_outp list-group-item lh-condensed col" style="border: 1px solid rgba(0,0,0,.125); max-width: 270px"><b>Changes</b></li>
+                        </ul>
+                        <ul class="row justify-content-center">
+                            <li class="tags_outp list-group-item lh-condensed post_img_a col" style="border: 1px solid rgba(0,0,0,.125); max-width: 270px; margin-right: 5px">{{ postg.image_field }}</li>
+                            <li class="tags_outp list-group-item lh-condensed post_img_b col" style="border: 1px solid rgba(0,0,0,.125); max-width: 270px; margin-right: 5px">{{ postg.post.image_field }}</li>
+                            <li class="tags_outp list-group-item lh-condensed post_img_c col" style="border: 1px solid rgba(0,0,0,.125); max-width: 270px"></li>
+                        </ul>
+                        <ul class="row justify-content-center" styl="margin-top: 5px;">
+                            <li class="tags_outp list-group-item lh-condensed post_file_a col" style="border: 1px solid rgba(0,0,0,.125); max-width: 270px; margin-right: 5px">{{ postg.file_name }}</li>  
+                            <li class="tags_outp list-group-item lh-condensed post_file_b col" style="border: 1px solid rgba(0,0,0,.125); max-width: 270px; margin-right: 5px">{{ postg.post.file_name }}</li>
+                            <li class="tags_outp list-group-item lh-condensed post_file_c col" style="border: 1px solid rgba(0,0,0,.125); max-width: 270px"></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+</section>
+<script type="text/javascript">
+    window.CSRF_TOKEN = "{{ csrf_token }}";
+
+    document.addEventListener("DOMContentLoaded", function(event) { 
+        let array_with_posts = document.getElementsByClassName("writer_box");
+
+        Array.from(array_with_posts).forEach(ep => {
+            let t1a = ep.querySelector(".post_img_a");
+            let t1b = ep.querySelector(".post_img_b");
+            let t1c = ep.querySelector(".post_img_c");
+
+            let t2a = ep.querySelector(".post_file_a");
+            let t2b = ep.querySelector(".post_file_b");
+            let t2c = ep.querySelector(".post_file_c");
+
+
+            let output1 = patienceDiff(t1a.innerHTML.split(""), t1b.innerHTML.split(""));
+            let dif1 = output1.lines;
+            dif1.forEach(e => {
+                if (e.aIndex == -1) {
+                    t1c.innerHTML += "<span style='color:green;'>"+ e.line + "</span>";
+                }
+                else if (e.bIndex == -1) {
+                    t1c.innerHTML += "<span style='color:red;'>"+ e.line + "</span>";
+                }
+                else {
+                    t1c.innerHTML += e.line;
+                }
+            });
+
+            let output2 = patienceDiff(t2a.innerHTML.split(""), t2b.innerHTML.split(""));
+            let dif2 = output2.lines;
+            dif2.forEach(e => {
+                if (e.aIndex == -1) {
+                    t2c.innerHTML += "<span style='color:green;'>"+ e.line + "</span>";
+                }
+                else if (e.bIndex == -1) {
+                    t2c.innerHTML += "<span style='color:red;'>"+ e.line + "</span>";
+                }
+                else {
+                    t2c.innerHTML += e.line;
+                }
+            });
+
+
+        });
+        
+
+        //text3.textContent = output;
+        //console.log(output);
+    });
+
+</script>
+{% endblock %}

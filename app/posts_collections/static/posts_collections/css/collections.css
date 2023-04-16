@@ -1,0 +1,141 @@
+/* collections */
+.collections_box {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    grid-gap: 20px;
+}
+
+.collections_box a {
+    text-decoration: none;
+    font-size: 16px;
+    font-weight: bold;
+    color: rgb(117, 117, 117);
+    /* text-transform: uppercase; */
+    display: block;
+    /* transition: 1s; */
+    text-align: center;
+    border: 1px solid rgba(0,0,0,.125);
+    box-shadow: 2px 1px 5px rgb(0 0 0 / 20%);
+}
+
+.collections_box a:hover {
+    /* transition: 1s; */
+    color: rgb(117, 117, 117);
+    font-size: 16px;
+    border-bottom: 1px solid rgb(117, 117, 117);
+    box-shadow: 2px 1px 5px rgb(0 0 0 / 40%);
+}
+
+
+/* single collection */
+.collection_section__box {
+    position: relative;
+    margin-top: 40px;
+    max-width: 1580px;
+    display: grid;
+    grid-template-columns: repeat(4, 350px);
+    grid-gap: 30px;
+}
+.collection_header {
+    text-align: center;
+}
+/* .card__data1 {
+    width: 33%;
+} */
+.collection_rename_delete_box {
+    display: block;
+    margin: 0 auto;
+    max-width: 300px;
+}
+input {
+    margin-left: 5px;
+}
+.collection_delete_rename_btn {
+    display: flex; 
+    flex-direction: row;
+}
+.collection_delete_rename_btn form {
+    max-width: 500px;
+}
+.collection_delete_rename_btn form:last-child {
+    display: flex;
+    flex-direction: row;
+}
+.collection_delete_rename_btn input{
+    height: 32px;
+}
+.collection_delete_rename_btn input[type="text"]{
+    animation-duration: 1s;
+    width: 400px;
+}
+.collection_section__card:hover .card__data2 {
+    display: block;
+    /* transition: 1s; */
+    visibility: visible;
+    opacity: 0.9;
+}
+.card__data2 {
+    padding: 10px;
+    visibility: hidden;
+    opacity: 1;
+    display: block;
+    width:350px;
+    height:350px;
+    background-color: rgba(255, 255, 255, 0.9);
+    position: absolute;
+}
+
+.tag__box {
+    margin-top: 5px;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    width: 100%;
+    max-height: 175px;
+    overflow: hidden;
+}
+.tag__box_center {
+    height: 130px;
+    overflow: scroll;
+}
+.tag__box_last {
+    margin-top: 15px;
+    justify-content: space-between;
+}
+.tag__box h6{
+    line-height:31px;
+}
+
+.card_imagebox {
+    display: block;
+    position: relative;
+    overflow:hidden;
+    margin: 0 auto;
+    width:350px;
+    height:350px;
+}
+.card_imagebox img{
+    position: absolute;
+    top:50%;
+    left:50%;
+    transform:translate(-50%,-50%);
+    width:350px;
+    height:350px;
+    object-fit: contain;
+}
+.collection_section__card {
+    position: relative;
+    display: flex;
+    color: rgb(117, 117, 117);
+    font-size: 16px;
+    border: 1px solid rgba(0,0,0,.125);
+    box-shadow: 2px 1px 5px rgb(0 0 0 / 40%);
+}
+
+.tag__box_form .input {
+    width: 70%;
+    color: rgb(117, 117, 117);
+    font-size: 16px;
+    border: 1px solid rgba(0,0,0,.125);
+    box-shadow: 2px 1px 5px rgb(0 0 0 / 20%);
+}

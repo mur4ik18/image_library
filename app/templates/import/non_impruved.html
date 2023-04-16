@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+{% block content%}
+<section>
+    <div class="container collections_box">
+        {% for f in name_folder%}
+            {% if f.posts_count == 0 %}
+                {% comment %} <a class="p-2 text-dark" href="{% url 'folder' f.id %}?accessed={{accessed}}">{{f.name}} {{ f.posts_count }}</a> {% endcomment %}
+            {% else %}
+                <a class="p-2 text-dark" href="{% url 'folder' f.id %}?accessed={{accessed}}">{{f.name}} {{ f.posts_count }}</a>    
+            {% endif %}
+        {% endfor %}
+    </div>
+    
+</section>
+
+{% endblock %}

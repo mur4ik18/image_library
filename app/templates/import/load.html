@@ -1,0 +1,93 @@
+{% extends 'base.html' %}
+
+{% block content%}
+<script type="text/javascript">
+    // A CSRF token is required when making post requests in Django
+    // To be used for making AJAX requests in script.js
+    window.CSRF_TOKEN = "{{ csrf_token }}";
+</script>
+    <section class="container">
+        <div class="flex-row">
+            <form class='col col-5' method="post" action="" enctype="multipart/form-data">
+                {% csrf_token %}
+                <p>Import new posts; Only .xlsx</p>
+                <div class="form-group">
+                    <input type="file" name='files' multiple>
+                </div>
+                <button type="submit" name='upload' class='btn-primary btn-sm btn' style="margin-top:10px">upload file</button>
+            </form>
+            <form class='col col-5' method="post" action="" enctype="multipart/form-data">
+                {% csrf_token %}
+                <p><br>Import ignore list; Only .xlsx</p>
+                <div class="form-group">
+                    <input type="file" name="file">
+                </div>
+                <button type="submit" name='ignore_list' class='btn-primary btn-sm btn' style="margin-top:10px">upload file</button>
+            </form>
+            {% comment %} <form class='col col-5' method="post" action="" enctype="multipart/form-data">
+                {% csrf_token %}
+                <div class="form-group">
+                    <input type="file" name="file">
+                </div>
+                <button type="submit" name='upload_collections' class='btn-primary btn-sm btn' style="margin-top:10px">upload collections</button>
+            </form>
+            <form class='col col-5' method="post" action="" enctype="multipart/form-data">
+                {% csrf_token %}
+                <div class="form-group">
+                    <input type="file" name="file">
+                </div>
+                <button type="submit" name='upload_posts' class='btn-primary btn-sm btn' style="margin-top:10px">upload posts</button>
+            </form>
+            <form class='col col-5' method="post" action="" enctype="multipart/form-data">
+                {% csrf_token %}
+                <div class="form-group">
+                    <input type="file" name="file">
+                </div>
+                <button type="submit" name='upload_relations' class='btn-primary btn-sm btn' style="margin-top:10px">upload relations</button>
+            </form>
+
+
+            <form class='col col-5' method="post" action="" enctype="multipart/form-data">
+                {% csrf_token %}
+                <div class="form-group">
+                </div>
+                <button type="submit" name='create_approved_coll' class='btn-primary btn-sm btn' style="margin-top:10px">create approved post collections</button>
+            </form> {% endcomment %}
+            {% comment %} <div class="col col-5">
+                <h3>Post counter</h3>
+                <p>Posts on website: {{ post_count }}</p>
+                <p>Approved posts: {{ approved_count }}</p>
+            </div> {% endcomment %}
+            {% comment %} <div class="col-5">
+                <form class='col col-5' method="post" action="" enctype="multipart/form-data">
+                {% csrf_token %}
+                    <h3>Export all posts</h3>
+                    <button type="submit" name='export' class='btn-primary btn-sm btn' style="margin-top:10px">Export posts</button>
+                </form>
+            </div>
+            <div class="col-5">
+                <form action="" method="post">
+                    {% csrf_token %}
+                    <h3>Delete all not approved post`s</h3>
+                    <button type="submit" name='delete_not_approved' class='btn-primary btn-sm btn' style="margin-top:10px">delete</button>
+                </form>
+            </div> {% endcomment %}
+            {% comment %} <div class="col-5">
+                <form action="" method="post">
+                    {% csrf_token %}
+                    <h3>Delete all tags from posts</h3>
+                    <button type="submit" name='delete_all_tags' class='btn-primary btn-sm btn' style="margin-top:10px">delete all tags</button>
+                </form>
+            </div> {% endcomment %}
+        </div>
+
+    </section>
+
+
+
+    {% comment %} <section class="container" style="margin-top:20px">
+        <p>click this button only if you want delete all posts without photo(full white photo)</p>
+        <button class="delete_post_without_image" type="submit">start</button>
+    </section> {% endcomment %}
+
+{% endblock %}

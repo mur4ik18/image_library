@@ -1,0 +1,9 @@
+{% for tag in post.tags.all %}
+<span id="delete_tag">
+    <span class="tag_box tags_each text-muted" value="{{tag}}">{{ tag }}
+        {% if perms.posts.delete_tag %}
+        <button class="delete_tag_btn delete_tag btn btn-primary btn-sm" data-tagname='{{tag}}' data-postid='{{post.id}}'>del</button>
+        {% endif %}
+    </span>
+</span>
+{% endfor %} 

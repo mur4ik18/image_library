@@ -1,0 +1,12 @@
+{% comment %} {% extends 'imagines/base.html' %}
+{% block content%}
+<section>
+    <div class="container collections_box">
+        {% for name, count in collections%}
+            <a class="p-2 text-dark" href="{% url 'search_only_by_name' name %}">{{name}} {{count}}</a>
+        {% endfor %}
+    </div>
+    
+</section>
+
+{% endblock %} {% endcomment %}

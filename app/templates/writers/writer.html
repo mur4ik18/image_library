@@ -1,0 +1,60 @@
+{% extends 'base.html' %}
+{% block content %}
+<section class="conteiner">
+  {% comment %} {% if perms.posts_collections.view_writers_admin_queue %}
+  <form class="download" method="post">
+    {% csrf_token %}
+    <input name="download" type="submit" value="Download CSV" id="download" class="btn-primary btn-sm btn">
+  </form>
+  {% endif %} {% endcomment %}
+  <div id="posts" class="row">
+    {% include 'writers/writer_posts.html' %}
+  </div>
+  <div class="row justify-content-center">
+    {% if perms.posts_collections.view_writers_admin_queue %}
+    <button class="btn-primary btn-sm btn" style="width: 200px;" id="save_all">Save All</button>
+    {% endif %}
+  </div>
+  
+</section>
+
+<script type="text/javascript">
+  window.CSRF_TOKEN = "{{ csrf_token }}";
+  // Save all posts for admins
+  $('#save_all').click(function(){
+    const btn = $(this);
+    btn.addClass('hide');
+    let arr = $("grammarly-editor-plugin");
+    let result = {};
+    arr.each(function(i, el) {
+      result[i] = {
+        "name": $(el).attr('name'),
+        "id": $(el).data('post_id'),
+        "collection_id": $(el).data('coll_id'),
+        "gram": $(el).val(),
+        "textaria": $(el).find("textarea").val(),
+      }
+    });
+    //console.log(result);
+    $.ajax({
+      type: 'post',
+      url: '/api/massive_save_for_writers/',
+      data: {
+        'csrfmiddlewaretoken': window.CSRF_TOKEN ,
+        'result': JSON.stringify(result),
+      },
+      success: function(data) {
+        // append html to the posts div
+        location.reload();
+      },
+      error: function(xhr, status, error) {
+        console.log(xhr, status, error);
+        btn.removeClass('hide');
+      }
+      });
+
+    // i should delete button after click! And retun if error
+  });
+</script>
+
+{% endblock %}

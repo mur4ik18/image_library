@@ -1,0 +1,128 @@
+{% extends 'base.html' %}
+{% block content%}
+  <div id="massive_container" class="hide">
+    <span id='result'></span>
+    <input type="submit" class="submit_now" value="bulk approval">
+    <input type="submit" class="delete_now" value="bulk delete">
+  </div>
+    <section class='collection_section'>
+        <h1 class="collection_header">{{ title }} 
+          <div class="row justify-content-between delete_approve_forms">
+            <form method="post">
+              {% csrf_token %}
+                <input type="submit" class="btn btn-primary btn-sm" name="delete_collection" value="Delete">
+            </form>
+            <form method="post">
+                {% csrf_token %}
+                <input type="submit" class="btn btn-primary btn-sm" name="Aprove_all" value="Aprove all">
+                <input type="hidden" name="coll_id" value="{{pk}}">
+            </form>
+          </div>
+        </h1>
+        
+        <div id="massive_add_tags_form" method="POST" enctype="multipart/form-data">
+            <span>Add tags for all posts in collection : </span>
+            <input type="text" id="add_massive_tag_name" data-collection_id="{{pk}}">
+            <button type="submit" value="Add tags" id="add_massive_tag_btn" class='btn-primary btn-sm btn'>Add tags</button>
+        </div>
+
+        <div class="collection_section__box" id='collection_section__box'>
+            {% include 'import/non_improved_posts.html' %}
+        </div>
+            
+        </section>
+
+<script type="text/javascript">
+  (function($) {
+  $('#add_massive_tag_btn').click(function() {
+    const tag_tag = $("#add_massive_tag_name");
+    var tag = $("#add_massive_tag_name").val();
+    var collection_id = $("#add_massive_tag_name").data("collection_id");
+    $.ajax({
+      type: 'post',
+      url: '/api/approve_massive_add_tag/',
+      data: {
+        'tag': tag,
+        'collid' : collection_id,
+        'csrfmiddlewaretoken': window.CSRF_TOKEN
+      },
+      success: function(data) {
+        tag_tag.val('')
+        location.reload();
+      },
+      error: function(xhr, status, error) {
+        // shit happens friends!
+      }
+    });
+  });
+}(jQuery));
+
+</script>
+
+<script type="text/javascript">
+  var len = 0;
+  $('.submit_now').click(function(){
+    var inputs = new Array();
+    $('.submit_it:checkbox:checked').each(function(){
+      inputs.push($(this).data('post_id'));
+    });
+    
+    var str = inputs.toString();
+    if (inputs.length>=1) {
+      $.ajax({
+      type: 'post',
+      url: '/api/bulk_approve/',
+      data: {
+          'postsid': str,
+          'csrfmiddlewaretoken': window.CSRF_TOKEN // from index.html
+      },
+      
+      success: function(data) {
+            jQuery.each( inputs, function( i, val ) {
+                $('#'+val).remove();
+                })
+            
+            // append html to the posts div
+            $('.submit_it:checkbox').prop('checked', false);
+            $('#massive_container').removeClass('show');
+      },
+      error: function(xhr, status, error) {
+          // shit happens friends!
+      }
+      });
+    };
+  });
+
+  $('.delete_now').click(function(){
+    var inputs = new Array();
+    $('.submit_it:checkbox:checked').each(function(){
+      inputs.push($(this).data('post_id'));
+    });
+    
+    var str = inputs.toString();
+    if (inputs.length>=1) {
+      $.ajax({
+      type: 'post',
+      url: '/api/bulk_delete/',
+      data: {
+          'posts_id': str,
+          'csrfmiddlewaretoken': window.CSRF_TOKEN // from index.html
+      },
+      
+      success: function(data) {
+        // append html to the posts div
+        jQuery.each( inputs, function( i, val ) {
+        $('#'+val).remove();})
+        // append html to the posts div
+        $('.submit_it:checkbox').prop('checked', false);
+        $('#massive_container').removeClass('show');
+      },
+      error: function(xhr, status, error) {
+          // shit happens friends!
+      }
+      });
+    };
+  });
+</script>
+
+{% endblock %}

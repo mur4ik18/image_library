@@ -1,0 +1,93 @@
+{% for project in projects %}
+<div class="card" id="{{ project.id }}">
+    <button onclick="return follow(this);" class="img_container btn btn-link" target="_blank" href="{% url 'page' project.id %}" target=”_blank”>
+        <img sizes="(max-width: 600px) 480px" src="http://34.208.90.101{{project.image}}" alt="image">
+    </button>
+
+    <h5>Author : {{project.author}}</h5>
+    <div class="row">
+        <div class="col-11 ">
+            <button onclick="return follow(this);" href="{% url 'page' project.id %}" target="_blank" style="padding: 0px;" class="btn btn-link">View more...</button>
+        </div>
+        {% if request.user.is_authenticated %}
+            <input type="checkbox" class="submit_it col-2"  data-post_id="{{project.id}}" data-search="{{title}}">
+        {% endif %}
+    </div>
+
+    {% if request.user.is_authenticated %}
+    <div class="but3">
+        {% csrf_token %}
+        {% if collcount != 0 %}
+            <input list="brow" class='pop1' placeholder='Choose the collection'>
+            <datalist id="brow" name="sellect_to_save_in_collection">
+            {% for coll in collections_list %}
+                <option value="{{coll.title}}">{{coll.title}}</option>
+            {% endfor %}
+            </datalist>  
+            <input type="hidden" name="post_id" class="post_id" data-search_querry="{{ title }}" data-search="{{title}}" value="{{ project.id }}">
+            <a class="add_to_collection btn btn-primary btn-sm">Add to collection</a>
+        {% else %}
+            Please create new collection!
+        {% endif %}
+    </div>  
+    {% endif %}
+    <div class="but4">
+        {% for coll in project.collections %}
+            {{ coll.title }}, 
+        {% endfor %}
+    </div>
+</div>
+{% endfor%}
+
+
+<script>
+    function follow(item) {
+        var open = item.getAttribute('href');
+        var a = document.createElement("a");
+        a.href = open;
+        var evt = document.createEvent("MouseEvents");    
+        evt.initMouseEvent("click", true, true, window, 0, 0, 0, 0, 0, true, false, false, false, 0, null);
+        a.dispatchEvent(evt);
+    }
+</script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+<script type="text/javascript">
+    $('.add_to_collection').click(function(event){
+        console.log("clicked");
+        var post_id =  $(this).siblings(".post_id").val()
+        var collection = $(this).siblings(".pop1").val()
+        $.ajax({
+            type: 'post',
+            url: '/api/add_to_collection/',
+            data: {
+                'post_id': post_id,
+                'collection_id': collection,
+                'csrfmiddlewaretoken': window.CSRF_TOKEN // from index.html
+            },
+            success: function(data) {
+                // append html to the posts div
+                $('.pop1').val('');
+                $('#'+post_id).find('.but4').append(collection+', ');
+            },
+            error: function(xhr, status, error) {
+                // shit happens friends!
+            }
+        });
+    });
+    
+</script>
+<script type="text/javascript">
+    var len = 0;
+  
+    $('.submit_it:checkbox').click(function(){
+      $('#result').html($('.submit_it:checkbox:checked').length + ' selected posts');
+      len = $('.submit_it:checkbox:checked').length
+      console.log(len)
+      if (len>=1){
+        $('#massive_container').addClass('show');
+      }
+      if (len == 0) {
+        $('#massive_container').removeClass('show');
+      }
+    });
+</script>

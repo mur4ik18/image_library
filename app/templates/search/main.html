@@ -1,0 +1,403 @@
+{% extends 'base.html' %}
+
+{% block content%}
+<section>
+{% if request.user.is_authenticated %}
+<div id="massive_container" class="hide">
+    <span id='result'></span>
+    {% if collcount != 0 %}
+        <input list="brow" class='pop' placeholder='Choose the collection'>
+        <datalist id="brow" name="sellect_to_save_in_collection">
+        {% for coll in collections_list %}
+            <option value="{{coll.title}}">{{coll.title}}</option>
+        {% endfor %}
+        </datalist>  
+        <input type="hidden" name="post_id" class="post_id" data-page='{{page_num}}' value="{{ project.id }}">
+        <a class="massive_add_to_collection btn btn-primary btn-sm">Add to collection</a>
+        {% else %}
+        Please create new collection!
+    {% endif %}
+    {% if request.user.delete_post %}
+        <input type="submit" class="delete_now btn btn-primary btn-sm" value="bulk delete">
+    {% endif %}
+</div>
+{% endif %}
+    <script type="text/javascript">
+      // A CSRF token is required when making post requests in Django
+      // To be used for making AJAX requests in script.js
+      window.CSRF_TOKEN = "{{ csrf_token }}";
+    </script>
+    <form id="target" class="input-group mb-3 container justify-content-center" action="{% url 'search' %}">
+        <div class="col-6">
+            <div class="box d-flex justify-content-center">
+                <p><input class="hiden hidden" type="checkbox" id="inp1"></p>
+                <div class="col-6" style="margin-left: 50px;">
+                    <input name="search_text_1" type="text" class="form-control" placeholder="Input search querry" aria-label="Input search querry" aria-describedby="button-addon2">
+                </div>
+                <select id='search_filter_1' class='pop search_filter_1'>
+                    <option value="all">All fields</option>
+                    <option value="author">By author</option>
+                    <option value="date">By date</option>
+                    <option value="image_field">By web description</option>
+                    <option value="text_comments">By comments</option>
+                    <option value="mentions">By mentions</option>
+                    <option value="caption">By caption</option>
+                    <option value="tags_list">By tags</option>
+                    <option value="ai_caption">By ai caption</option>
+                    <option value="ai_description">By ai description</option>
+                </select>
+            </div>
+            <div class="box d-flex justify-content-center mt-4">
+                <p>OR  <input type="checkbox" id="inp2"></p>    
+                <div class="col-6">
+                    <input name="search_text_2" type="text" class="form-control" placeholder="Input search querry" aria-label="Input search querry" aria-describedby="button-addon2">
+                </div>
+                <select id='search_filter_2' class='pop search_filter_2'>
+                    <option value="all">All fields</option>
+                    <option value="author">By author</option>
+                    <option value="date">By date</option>
+                    <option value="image_field">By web description</option>
+                    <option value="text_comments">By comments</option>
+                    <option value="mentions">By mentions</option>
+                    <option value="caption">By caption</option>
+                    <option value="tags_list">By tags</option>
+                    <option value="ai_caption">By ai caption</option>
+                    <option value="ai_description">By ai description</option>
+                </select>
+            </div>
+            <div class="box d-flex justify-content-center mt-4"> 
+                <p>OR  <input type="checkbox" id="inp3"></p>
+                <div class="col-6">
+                    <input name="search_text_3" type="text" class="form-control" placeholder="Input search querry" aria-label="Input search querry" aria-describedby="button-addon2">
+                </div>
+                <select id='search_filter_3' class='pop search_filter_3'>
+                    <option value="all">All fields</option>
+                    <option value="author">By author</option>
+                    <option value="date">By date</option>
+                    <option value="image_field">By web description</option>
+                    <option value="text_comments">By comments</option>
+                    <option value="mentions">By mentions</option>
+                    <option value="caption">By caption</option>
+                    <option value="tags_list">By tags</option>
+                    <option value="ai_caption">By ai caption</option>
+                    <option value="ai_description">By ai description</option>
+                </select>
+            </div>
+            <div class="box d-flex justify-content-center mt-4"> 
+                <p>OR  <input type="checkbox" id="inp4"></p>
+                <div class="col-6">
+                    <input name="search_text_4" type="text" class="form-control" placeholder="Input search querry" aria-label="Input search querry" aria-describedby="button-addon2">
+                </div>
+                <select id='search_filter_4' class='pop search_filter_3'>
+                    <option value="all">All fields</option>
+                    <option value="author">By author</option>
+                    <option value="date">By date</option>
+                    <option value="image_field">By web description</option>
+                    <option value="text_comments">By comments</option>
+                    <option value="mentions">By mentions</option>
+                    <option value="caption">By caption</option>
+                    <option value="tags_list">By tags</option>
+                    <option value="ai_caption">By ai caption</option>
+                    <option value="ai_description">By ai description</option>
+                </select>
+            </div>
+            <div class="box d-flex justify-content-center mt-4"> 
+                <p>OR  <input type="checkbox" id="inp5"></p>
+                <div class="col-6">
+                    <input name="search_text_5" type="text" class="form-control" placeholder="Input search querry" aria-label="Input search querry" aria-describedby="button-addon2">
+                </div>
+                <select id='search_filter_5' class='pop search_filter_3'>
+                    <option value="all">All fields</option>
+                    <option value="author">By author</option>
+                    <option value="date">By date</option>
+                    <option value="image_field">By web description</option>
+                    <option value="text_comments">By comments</option>
+                    <option value="mentions">By mentions</option>
+                    <option value="caption">By caption</option>
+                    <option value="tags_list">By tags</option>
+                    <option value="ai_caption">By ai caption</option>
+                    <option value="ai_description">By ai description</option>
+                </select>
+            </div>
+            <div class="box d-flex justify-content-between mt-6"> 
+                <p><input type="checkbox" id="inp_1"> Without collections</p>
+                <p><input type="checkbox" id="inp_2"> With 1 collection</p>
+                <p><input type="checkbox" id="inp_3" checked> Hide posts with 2 or more collections</p>
+            </div>
+            <div class="d-flex justify-content-center mt-4">
+                <div id="spiner_box" class="hide">
+                    <div class="spinner-border text-primary" role='status'></div>
+                </div>
+                <button class="btn btn-outline-secondary search_button" type="submit" id="button-addon2">Search</button>
+            </div>
+        </div>
+    </form>
+    <h3 class='search_count hide'>({{ search_count }} images)</h3>
+    <div class="flex_grid" id="posts">
+        {% include 'search/search_posts.html' %}
+    </div>
+
+
+    <div class="d-flex justify-content-center mt-12">
+        <button id="load_more" value="1" class="btn btn-primary hiden" style="margin: 0 auto;">Load more</button>
+    </div>
+</section>
+
+{% comment %} <script>
+    let scrollLimit = 8000;  // Amount after which ajax() call initializes
+    let limit       = 3;    // item count
+    let offset      = 6; 
+    $(window).scroll(el => {
+        scrollPosition = $(this).scrollTop();
+        //console.log(scrollPosition);
+        if (scrollPosition >= scrollLimit)
+        {   
+            loadContent(limit, offset);  // loadContent method in which ajax() call is defined
+
+            // Update values on each scroll
+            scrollLimit = scrollLimit + 10000;
+            offset  = offset + 3;
+        }
+    });
+    function loadContent() {
+        let load_more_button = document.getElementById("load_more");
+        load_more_button.value ++;
+        const obj = $('.form-control');
+        let or1 = $('#inp1').is(":checked");
+        let or2 = $('#inp2').is(":checked");
+        let or3 = $('#inp3').is(":checked");
+        let or4 = $('#inp4').is(":checked");
+        let or5 = $('#inp5').is(":checked");
+
+        let f1 = $('#search_filter_1').val();
+        let f2 = $('#search_filter_2').val();
+        let f3 = $('#search_filter_3').val();
+        let f4 = $('#search_filter_4').val();
+        let f5 = $('#search_filter_5').val();
+
+        let option1 = $('#inp_1').is(":checked");
+        let option2 = $('#inp_2').is(":checked");
+        let option3 = $('#inp_3').is(":checked");
+
+        $.ajax({
+            type: 'post',
+            url: '/search/',
+            data: {
+                'querry1': [
+                    obj[0].value,f1, or1
+                ],
+                'querry2': [
+                    obj[1].value,f2self.query, or2
+                ],
+                'querry3': [
+                    obj[2].value,f3, or3
+                ],
+                'querry4': [
+                    obj[3].value,f4, or4
+                ],
+                'querry5': [
+                    obj[4].value,f5, or5
+                ],
+                'options' :[option1, option2, option3], 
+                'page' : load_more_button.value,
+                'csrfmiddlewaretoken': window.CSRF_TOKEN // from index.html
+            },
+            success: function(data) {
+                let load_more_button = document.getElementById("load_more");
+                load_more_button.classList.add("hiden");
+                $('#posts').append(data.output_data);
+                if (data.show == 1) {
+                    let load_more_button = document.getElementById("load_more");
+                    load_more_button.classList.remove("hiden");
+                };
+            },
+            error: function(xhr, status, error) {
+                // shit happens friends!
+            }
+        });
+    }
+    // load more
+    
+</script> {% endcomment %}
+
+
+<script type="text/javascript">
+    (function($) {
+    $('#target').submit(function(event) {
+        event.preventDefault();
+        const obj = $('.form-control');
+
+        let or1 = $('#inp1').is(":checked");
+        let or2 = $('#inp2').is(":checked");
+        let or3 = $('#inp3').is(":checked");
+        let or4 = $('#inp4').is(":checked");
+        let or5 = $('#inp5').is(":checked");
+
+        let f1 = $('#search_filter_1').val();
+        let f2 = $('#search_filter_2').val();
+        let f3 = $('#search_filter_3').val();
+        let f4 = $('#search_filter_4').val();
+        let f5 = $('#search_filter_5').val();
+
+        let option1 = $('#inp_1').is(":checked");
+        let option2 = $('#inp_2').is(":checked");
+        let option3 = $('#inp_3').is(":checked");
+
+        console.log(obj[0].value, f1, or1);
+        console.log(obj[1].value, f2, or2);
+        console.log(obj[2].value, f3, or3);
+        console.log(obj[3].value, f4, or4);
+        console.log(obj[4].value, f5, or5);
+        console.log(option1, option2, option3);
+
+
+        $('#button-addon2').addClass('hide');
+        $('#spiner_box').removeClass('hide');
+        $.ajax({
+            type: 'post',
+            url: '/search/search/',
+            data: {
+                'lazy_load': 0,
+                'querry1': [
+                    obj[0].value.toLowerCase(), f1, or1
+                ],
+                'querry2': [
+                    obj[1].value.toLowerCase(),f2, or2
+                ],
+                'querry3': [
+                    obj[2].value.toLowerCase(),f3, or3
+                ],
+                'querry4': [
+                    obj[3].value.toLowerCase(),f4, or4
+                ],
+                'querry5': [
+                    obj[4].value.toLowerCase(),f5, or5
+                ],
+                'options' :[option1, option2, option3],  
+                'csrfmiddlewaretoken': window.CSRF_TOKEN
+            },
+            success: function(data) {
+                let load_more_button = document.getElementById("load_more");
+                load_more_button.classList.add("hiden");
+                $('#button-addon2').removeClass('hide');
+                $('#spiner_box').addClass('hide');
+                $('#posts').html(data.output_data);
+                $('.search_count').html(`(${data.search_count} images)`);
+                $('.search_count').removeClass('hide');
+                if (data.show) {
+                    let load_more_button = document.getElementById("load_more");
+                    load_more_button.setAttribute("data-query", data.query);
+                    load_more_button.classList.remove("hiden");
+                };
+            },
+            error: function(xhr, status, error) {
+                $('#button-addon2').removeClass('hide');
+                $('#spiner_box').addClass('hide');
+            }
+        });
+    });
+    }(jQuery));
+    let load_more_button = document.getElementById("load_more");
+    $('#load_more').click(function(event){
+        let load_more_button = document.getElementById("load_more");
+        load_more_button.value ++;
+        const obj = $('.form-control');
+
+
+        console.log(load_more_button);
+        let f1 = $(this).attr("data-query");
+
+
+        let option1 = $('#inp_1').is(":checked");
+        let option2 = $('#inp_2').is(":checked");
+        let option3 = $('#inp_3').is(":checked");
+
+        $.ajax({
+            type: 'post',
+            url: '/search/search/',
+            data: {
+                'lazy_load': 1,
+                'query': f1,
+                'options' :[option1, option2, option3], 
+                'page' : load_more_button.value,
+                'csrfmiddlewaretoken': window.CSRF_TOKEN // from index.html
+            },
+            success: function(data) {
+                let load_more_button = document.getElementById("load_more");
+                load_more_button.classList.add("hiden");
+                $('#posts').append(data.output_data);
+                if (data.show == 1) {
+                    let load_more_button = document.getElementById("load_more");
+                    
+                    load_more_button.classList.remove("hiden");
+                };
+            },
+            error: function(xhr, status, error) {
+                // shit happens friends!
+            }
+        });
+    });
+
+
+
+    $('.delete_now').click(function(){
+      var inputs = new Array();
+      $('.submit_it:checkbox:checked').each(function(){
+        inputs.push($(this).data('post_id'));
+        });
+      
+      var str = inputs.toString();
+      if (inputs.length>=1) {
+        $.ajax({
+        type: 'post',
+        url: '/api/bulk_delete/',
+        data: {
+            'posts_id': str,
+            'csrfmiddlewaretoken': window.CSRF_TOKEN // from index.html
+        },
+        success: function(data) {
+            // append html to the posts div
+            jQuery.each( inputs, function( i, val ) {
+                $('#'+val).remove()
+              })
+            $('.submit_it:checkbox').prop('checked', false);
+            $('#massive_container').removeClass('show');
+        },
+        error: function(xhr, status, error) {
+            // shit happens friends!
+        }
+        });
+      };
+    });
+
+    $('.massive_add_to_collection').click(function(event){
+        var collection_name = $(this).siblings(".pop").val();
+        var inputs = new Array();
+        $('.submit_it:checkbox:checked').each(function(){
+            inputs.push($(this).data('post_id'));
+            });
+        var str = inputs.toString();
+        $.ajax({
+            type: 'post',
+            url: '/api/bulk_collection_add/',
+            data: {
+                'posts_id': str,
+                'collection_name': collection_name,
+                'csrfmiddlewaretoken': window.CSRF_TOKEN // from index.html
+            },
+            success: function(data) {
+                jQuery.each( inputs, function( i, val ) {
+                    $('#'+val).find('.but4').append(collection_name+', ');
+                  })
+                // append html to the posts div
+                $('.submit_it:checkbox').prop('checked', false);
+                $('#massive_container').removeClass('show');
+            },
+            error: function(xhr, status, error) {
+                // shit happens friends!
+            }
+        });
+    });
+</script>
+
+{% endblock %}

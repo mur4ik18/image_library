@@ -1,0 +1,71 @@
+###########
+# BUILDER #
+###########
+
+# pull official base image
+FROM python:3.9.7-alpine as builder
+
+# set work directory
+WORKDIR /usr/src/app
+
+# set environment variables
+ENV PYTHONDONTWRITEBYTECODE 1
+ENV PYTHONUNBUFFERED 1
+
+RUN apk update \
+    && apk add py3-pip libpq jpeg-dev zlib-dev libjpeg build-base python3-dev gcc musl-dev cargo zlib-dev libxml2-dev libxslt-dev libc-dev libffi-dev openssl-dev libgcc jpeg-dev postgresql-dev
+
+RUN pip install --upgrade pip
+COPY ./requirements.txt .
+RUN pip wheel --no-cache-dir --no-deps --wheel-dir /usr/src/app/wheels -r requirements.txt
+RUN pip install django-cors-headers
+
+#########
+# FINAL #
+#########
+
+# pull official base image
+FROM python:3.9.7-alpine
+
+# create directory for the app user
+RUN mkdir -p /home/app
+
+# create the app user
+RUN addgroup -S app && adduser -S app -G app
+
+# create the appropriate directories
+ENV HOME=/home/app
+ENV APP_HOME=/home/app/web
+RUN mkdir $APP_HOME
+RUN mkdir $APP_HOME/staticfiles
+RUN mkdir $APP_HOME/mediafiles
+WORKDIR $APP_HOME
+
+# install dependencies
+RUN apk update && apk add libpq jpeg-dev zlib-dev libjpeg
+COPY --from=builder /usr/src/app/wheels /wheels
+COPY --from=builder /usr/src/app/requirements.txt .
+RUN pip install --no-cache /wheels/*
+
+# copy entrypoint.prod.sh
+COPY . .
+# RUN sed -i 's/\r$//g'  $APP_HOME/entrypoint.sh
+RUN chmod 755 entrypoint.sh
+
+
+
+# chown all the files to the app user
+RUN chown -R app:app $APP_HOME
+RUN chmod -R 770 mediafiles
+RUN chmod 777 mediafiles
+RUN pip install elasticsearch
+# change to the app user
+USER app
+
+# RUN sh entrypoint.sh
+
+# RUN python manage.py makemigrations
+# RUN python manage.py migrate
+# RUN python manage.py collectstatic
+
+# Run python manage.py migrate

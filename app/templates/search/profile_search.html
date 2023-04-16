@@ -1,0 +1,100 @@
+{% extends 'base.html' %}
+
+{% block content%}
+<section>
+{% if request.user.is_authenticated %}
+<div id="massive_container" class="hide">
+  <span id='result'></span>
+  {% if collcount != 0 %}
+        <input list="brow" class='pop' placeholder='Choose the collection'>
+        <datalist id="brow" name="sellect_to_save_in_collection">
+        {% for coll in collections %}
+            <option value="{{coll.title}}">{{coll.title}}</option>
+        {% endfor %}
+        </datalist>  
+        <input type="hidden" name="post_id" class="post_id" data-page='{{page_num}}' value="{{ project.id }}">
+        <a class="massive_add_to_collection btn btn-primary btn-sm">Add to collection</a>
+        {% else %}
+        Please create new collection!
+        {% endif %}
+  <input type="submit" class="delete_now btn btn-primary btn-sm" value="bulk delete">
+</div>
+{% endif %}
+    <script type="text/javascript">
+      // A CSRF token is required when making post requests in Django
+      // To be used for making AJAX requests in script.js
+      window.CSRF_TOKEN = "{{ csrf_token }}";
+    </script>
+    
+    <div class="flex_grid" id="posts">
+      <div class="flex_grid">
+        {% include 'search/profile_search_posts.html' %}
+      </div>
+    </div>
+
+</section>
+
+
+<script type="text/javascript">
+  $('.delete_now').click(function(){
+    var inputs = new Array();
+    $('.submit_it:checkbox:checked').each(function(){
+      inputs.push($(this).data('post_id'));
+      });
+    
+    var str = inputs.toString();
+    if (inputs.length>=1) {
+      $.ajax({
+      type: 'post',
+      url: '/api/bulk_delete/',
+      data: {
+          'posts_id': str,
+          'csrfmiddlewaretoken': window.CSRF_TOKEN // from index.html
+      },
+      success: function(data) {
+          // append html to the posts div
+          jQuery.each( inputs, function( i, val ) {
+              $('#'+val).remove()
+            })
+          $('.submit_it:checkbox').prop('checked', false);
+          $('#massive_container').removeClass('show');
+      },
+      error: function(xhr, status, error) {
+          // shit happens friends!
+      }
+      });
+    };
+  });
+
+  $('.massive_add_to_collection').click(function(event){
+      var collection_name = $(this).siblings(".pop").val();
+      var inputs = new Array();
+      $('.submit_it:checkbox:checked').each(function(){
+          inputs.push($(this).data('post_id'));
+          });
+      var str = inputs.toString();
+      $.ajax({
+          type: 'post',
+          url: '/api/bulk_collection_add/',
+          data: {
+              'posts_id': str,
+              'collection_name': collection_name,
+              'csrfmiddlewaretoken': window.CSRF_TOKEN // from index.html
+          },
+          success: function(data) {
+              jQuery.each( inputs, function( i, val ) {
+                  $('#'+val).find('.but4').append(collection_name+', ');
+                })
+              
+              // append html to the posts div
+              $('.submit_it:checkbox').prop('checked', false);
+              $('#massive_container').removeClass('show');
+          },
+          error: function(xhr, status, error) {
+              // shit happens friends!
+          }
+      });
+  });
+
+</script>
+{% endblock %}

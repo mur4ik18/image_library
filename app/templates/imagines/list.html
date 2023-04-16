@@ -1,0 +1,18 @@
+{% include 'page.html' with object_list=posts %}
+
+{% block content%}
+{% if tag %}
+    <h2>Posts tagged with "{{ tag.name }}"</h2>
+{% endif %}
+
+<p class="tags">
+    Tags:
+    {% for tag in posts.tags.all %}
+        <a href="{% url "posts:post_list_by_tag" tag.slug %}">
+            {{ tag.name }}
+        </a>
+        {% if not forloop.last %}, {% endif %}
+    {% endfor %}
+</p>
+
+{% endblock %}

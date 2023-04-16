@@ -1,0 +1,198 @@
+{% for post in object_list %}
+<div class="writer_box mb-3">
+    <div class="box_writer col-6">
+        <img src="http://34.208.90.101{{post.image.url}}" alt="">
+    </div>
+    <div class="box_writer col-5 ">
+        <h4>{% for i in post.collections.all %}| {{i}} | {% endfor %}<br>post-id: {{post.id}}</h4>
+        <div class="ogran row">
+            {% if post.image_field == ""%}
+ 
+                <ul class="list-group mb-3">
+                  <li class="tags_outp list-group-item lh-condensed">
+                    <form method="post" class='row justify-content-between'>
+                      {% csrf_token %}
+                      <span>Image description</span>
+                      <grammarly-editor-plugin class="col-5" name="image_field_text" data-coll_id="{{collection_id}}" data-post_id="{{post.id}}">
+                        <textarea class="textarea_writers" style="margin-left:-15px;"></textarea>  
+                      </grammarly-editor-plugin>
+                      <input type="hidden" class="post_page_category" value="{{post.id}}">
+                    </form>
+                  </li>
+                </ul>
+            {% else %}
+                <ul class="list-group mb-3">
+                  <li class="tags_outp list-group-item lh-condensed"><span>{{ post.image_field }}</span> <a class="edit_image_field btn btn-primary btn-sm">Edit image description</a></li>
+                  <form class='hiden image_field_form' method="post">
+                    {% csrf_token %}
+                    <input type="hidden" class="post_page_category" value="{{post.id}}">
+                    <grammarly-editor-plugin class="col-5" name="image_field_text" data-coll_id="{{collection_id}}" data-post_id="{{post.id}}">
+                      <textarea class="textarea_writers">{{ post.image_field }}</textarea>
+                    </grammarly-editor-plugin>
+                    <a class='send_data col-5 btn-primary btn-sm btn' name="update_image_field">Save image description</a>
+                  </form>
+              </ul>
+            {% endif %}
+
+            {% if post.file_name == ""%}
+              <ul class="list-group mb-3">
+                <li class="tags_outp list-group-item lh-condensed">
+                  <form method="post" class='row justify-content-between'>
+                    {% csrf_token %}
+                    <span>Image title</span>
+                    <grammarly-editor-plugin class="col-5" name="page_file_name" data-coll_id="{{collection_id}}" data-post_id="{{post.id}}">
+                      <textarea class="textarea_writers textarea_writers__page_file_name" style="margin-left:-15px;"></textarea>                  
+                    </grammarly-editor-plugin>
+                    <input type="hidden" class="post_page_category" value="{{post.id}}">
+                  </form>
+                </li>
+              </ul>
+
+              {% else %}
+              <ul class="list-group mb-3">
+                <li class="tags_outp list-group-item lh-condensed"><span>{{ post.file_name }}</span><a class="file_alt_name btn btn-primary btn-sm">Edit image title</a></li>
+
+                <form class='hiden file_name_form' method="post">
+                  {% csrf_token %}
+                  <input type="hidden" class="post_page_category" value="{{post.id}}">
+                  <grammarly-editor-plugin class="col-5" name="page_file_name" data-coll_id="{{collection_id}}" data-post_id="{{post.id}}">
+                    <textarea class="textarea_writers textarea_writers__page_file_name">{{ post.file_name }}</textarea>   
+                  </grammarly-editor-plugin>
+                  <a class='send_data col-5 btn-primary btn-sm btn' name="update_file_name">Save image title</a>
+                </form>
+
+              </ul>
+              {% endif %}
+        </div>
+    </div>
+    <p class="writer__post_caption">{{ post.caption }}</p>
+
+    <a class='edit_add_bulk col-5 btn-primary btn-sm btn ' data-coll_id="{{collection_id}}" style='margin-right: 170px;'>Save this image</a>
+    <a name="Complete" class='complete_this_post col-5 btn-primary btn-sm btn' data-coll_id="{{collection_id}}" data-id="{{post.id}}">Submit</a>
+
+  </div>
+{% endfor %}
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+<script>
+  // csrf token
+  window.CSRF_TOKEN = "{{ csrf_token }}";
+  // remove hide
+  $('.edit_image_field').on('click', function() {
+    $(this).addClass("hiden");
+    $(this).parent().siblings(".image_field_form").removeClass('hiden');
+  })
+  $('.file_alt_name').on('click', function() {
+    $(this).addClass("hiden");
+    $(this).parent().siblings(".file_name_form").removeClass('hiden')
+  })
+  // 
+  $('textarea').on('click',function(){
+    $('textarea').each(function(i,el){
+      $(el).removeClass('activeInp')
+    })
+    console.log('activeInp')
+    $(this).addClass('activeInp')
+  })
+
+  
+  $('.edit_add_bulk').on('click', function(){
+    var edit_add_bulk = $(this).siblings('.box_writer');
+    var inputs = edit_add_bulk.find('grammarly-editor-plugin');
+    let result = {};
+    inputs.each(function(i, el){
+      result[i] = {
+        "name": $(el).attr('name'),
+        "id": $(el).siblings(".post_page_category").val(),
+        "collection_id": $(this).data('coll_id'),
+        // "gram": $(el).val(),
+        "textaria": $(el).find("textarea").val(),
+      }
+    });
+    console.log(result)
+    $.ajax({
+      type: 'post',
+      url: '/api/massive_post_data_update/',
+      data: {
+        'result': JSON.stringify(result),
+        'csrfmiddlewaretoken': window.CSRF_TOKEN // from index.html
+      },
+      success: function(data) {
+        // append html to the posts div
+        location.reload();
+      },
+      error: function(xhr, status, error) {
+        // shit happens friends!
+      }
+      });
+  })
+
+  $('.complete_this_post').click(function(){
+    var edit_add_bulk = $(this).siblings('.box_writer')
+    var inputs = edit_add_bulk.find('grammarly-editor-plugin')
+    let result = {};
+    inputs.each(function(i, el){
+      result[i] = {
+        "name": $(el).attr('name'),
+        "id": $(this).data('id'),
+        "collection_id": $(this).data('coll_id'),
+        // "gram": $(el).val(),
+        "textaria": $(el).find("textarea").val(),
+      }
+    })
+    if ((($(inputs[0]).find("textarea").val() != "")||($(inputs[0]).val() != "")) && (($(inputs[1]).find("textarea").val() != "")|| ($(inputs[1]).val() != ""))) {
+      $.ajax({
+        type: 'post',
+        url: '/api/approve/',
+        data: {
+          'result': JSON.stringify(result),
+          'post_id': $(this).data('id'),
+          'collection_id': $(this).data('coll_id'),
+          'csrfmiddlewaretoken': window.CSRF_TOKEN // from index.html
+        },
+        success: function(data) {
+          console.log(result);
+          location.reload();
+        },
+        error: function(xhr, status, error) {
+            // shit happens friends!
+        }
+      });
+  } else {
+    console.log("One ore two fields empty");
+  };
+  });
+
+  // ===================================================
+  // update post data
+  $('.send_data').click(function(){
+    const se = $(this);
+    let result = {
+      "name": $(this).siblings("grammarly-editor-plugin").attr('name'),
+      "id": $(this).siblings(".post_page_category").val(),
+      "collection_id": $(this).siblings("grammarly-editor-plugin").data('coll_id'),
+      "textaria": $(this).siblings("grammarly-editor-plugin").find("textarea").val(),
+    } 
+
+    $.ajax({
+      type: 'post',
+      url: '/api/change_post_data/',
+      data: {
+          'result': JSON.stringify(result),
+          'csrfmiddlewaretoken': window.CSRF_TOKEN 
+      },
+      
+      success: function(data) {
+        $(se.parent().siblings(".tags_outp").find('a')[0]).removeClass('hiden');
+        se.parent().addClass('hiden');
+        se.parent().siblings(".tags_outp").find('span')[0].innerHTML = data.text;
+      },
+      error: function(xhr, status, error) {
+        // shit happens friends!
+        console.log(xhr, status, error);
+      }
+    });
+  });
+
+</script>
+
+

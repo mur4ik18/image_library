@@ -1,0 +1,97 @@
+.conteiner .writer_box{
+    margin: 0 auto;
+}
+
+.writer_box {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    border-radius: 20px;
+    padding: 10px;
+    width: 1100px;
+    min-height: 40rem;
+    border: 5px solid#8079794f;
+    margin-bottom: 10px;
+}
+.writer_box img {
+    max-width: 500px;
+    max-height: 520px;
+}
+.writer_box p{
+    /* max-height: 300px; */
+    margin-top: 10px;
+}
+
+.complete_this_post {
+    max-height: 40px;
+}
+.send_to_writer {
+    max-height: 40px;
+    margin-left: 170px;
+}
+
+.edit_add_bulk {
+    max-height: 40px;
+}
+
+.ogran {
+    width: 100%;
+    max-height: 600px;
+    overflow: scroll;
+    text-overflow: ellipsis;
+    overflow-x: hidden;
+}
+
+#links {
+    margin: 0 auto;
+    max-width: 1070px;
+    
+}
+#links a {
+    text-decoration: none;
+    font-size: 1rem;
+    font-weight: bold;
+    display: block;
+    color: rgb(117, 117, 117) !important;
+}
+#links a:hover {
+    color: rgba(117, 117, 117, 0.5) !important;
+}
+.textarea_writers__page_file_name {
+    height: 50px !important;
+}
+
+.writer_box textarea {
+    font-size: 14px;
+    line-height: 19px;
+    width: 420px !important;
+    height: 300px;
+}
+.activeInp {
+    animation-duration: 1s;
+}
+.ogran::-webkit-scrollbar {
+    width: 12px;
+}
+
+.search_button {
+    width: 200px !important;
+}
+
+.writer__post_caption {
+    min-width: 1000px;
+}
+
+#writers_list {
+    margin: 0 auto 10px auto;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    border-radius: 20px;
+    padding: 10px;
+    width: 1100px;
+}
+
+.authors {
+    margin: 0 auto;
+}

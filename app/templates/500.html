@@ -1,0 +1,29 @@
+<VirtualHost *:80>
+    ServerName AlexK
+
+    ErrorLog ${APACHE_LOG_DIR}/mysite-error.log
+    CustomLog ${APACHE_LOG_DIR}/mysite-access.log combined
+
+    WSGIDaemonProcess mysite processes=2 threads=25 python-path=/var/www/tutorial
+    WSGIProcessGroup mtutorial
+    WSGIScriptAlias / /var/www/tutorial/tutorial/wsgi.py
+
+    #Alias /robots.txt /var/www/tutorial/static/robots.txt
+
+    Alias /static/ /var/www/tutorial/static/
+    Alias /static/ /var/www/tutorial/media/
+
+    <Directory /var/www/tutorial/tutorial>
+        <Files wsgi.py>
+            Require all granted
+        </Files>
+    </Directory>
+
+    <Directory /var/www/tutorial/static>
+        Require all granted
+    </Directory>
+
+    <Directory /var/www/tutorial/media>
+        Require all granted
+    </Directory>
+</VirtualHost>

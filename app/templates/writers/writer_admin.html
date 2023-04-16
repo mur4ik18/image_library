@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<section class="conteiner">
+    <form method="post" class="row mb-5 d-flex justify-content-center">
+      {% csrf_token %}
+      <input class='btn-primary col-4 btn-sm btn' type="submit" name='approve' value="Approve All">
+    </form>
+    <div id="writers_list">
+      {% for i in collection_writer %}
+      <div class="authors">
+        <form class="delete_author" method="post">
+          {% csrf_token %}
+          <input type="hidden" class="hiden tag_box tags_each text-muted" name="Autor_to_collection" value="{{i}}">
+          <span class="tag_box tags_each text-muted" value="{{i}}">{{i}}</span>
+          <input type="submit" value="del" class="btn-primary btn-sm btn">
+        </form>
+      </div>
+      {% endfor %}
+    </div>
+    <div id="posts" class="row">
+      {% include 'writers/writer_admin_posts.html' %}
+    </div>
+</section>
+<script type="text/javascript">
+    // A CSRF token is required when making post requests in Django
+    // To be used for making AJAX requests in script.js
+    window.CSRF_TOKEN = "{{ csrf_token }}";
+</script>
+
+{% endblock %}

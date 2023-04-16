@@ -1,0 +1,298 @@
+{% for project in object_list %}
+    <div class="collection_section__card column" id="{{ project.id }}">
+        <div class="card__data1 col-4">
+            <a class="card_imagebox_box" href="{% url 'page' project.id %}" target=”_blank”>
+                <img src="http://34.208.90.101{{ project.image.url }}" alt="image">
+            </a>
+            <h6>Author : <button target="_blank" href="{% url 'page' project.id %}" style="padding: 0px;" class="author_post btn btn-link">{{project.author}}</button></h6>
+            <div class="but4" style="margin-top: 7px;">
+                {% for coll in project.collections.all %}
+                    {{coll}}, 
+                {% endfor %}
+            </div>
+        </div>
+        <div class="card__data3 col">
+            <p class="writer__post_caption">{{ project.caption }}</p>
+            {% if perms.posts_collections.change_collection %}
+                <div class="tag__box tag__box_last">
+                    <a class="remove_post btn btn-primary btn-sm" data-coll="{{collection_id}}"data-post="{{project.id}}" >Remove from collection</a>
+                </div>
+            {% endif %}
+        </div>
+        
+    </div>
+{% endfor %}
+
+<script>
+    function contains(arr, elem) {
+        return jQuery.inArray( elem, arr) != -1;
+    }
+    function sous(e) {
+        let ignore = [",", ".", "and", "or", "-", "+", "/", ""];
+        if (e[0] == "@"){
+            return true;
+        }
+        else if (contains(ignore, e)) {
+            return true;
+        }
+        else if ((e[0] != "@") && (contains(ignore, e))){
+            return false;
+        }
+        
+    }
+    function follow(item) {
+        var open = item.getAttribute('href');
+        var a = document.createElement("a");
+        a.href = open;
+        var evt = document.createEvent("MouseEvents");    
+        evt.initMouseEvent("click", true, true, window, 0, 0, 0, 0, 0, true, false, false, false, 0, null);
+        a.dispatchEvent(evt);
+    }
+
+
+    let ignore_tri = [
+                
+        //"Hosts:",
+        //"hosts",
+        //"hosts:",
+        //"hosts~",
+        //"hosts-",
+        "hosts",
+        "host",
+        "dm", 
+        "helpers",
+        "helper",
+        "cohelpers",
+        "co-hosts",
+        "co-host"
+        //"Hosts~", 
+        //"Hosts–", 
+        //"Helpers:", 
+        //"CoHelpers:", 
+        //"Hosts",
+        //"host"
+
+        //"Co-Hosts:",
+        //"Co-Hosts",
+    ];
+    let ignore_list = [
+        "@boutiquerugs",
+        "@liketoknow.it", 
+        "@liketoknow.it.home", 
+        "@liketoknow.it.family", 
+        "@ruggable", 
+        "@target", 
+        "@hgtvmagazine", 
+        "@diylifestylemagazine", 
+        "@doityourselfmagazine", 
+        "@shop.LTK", 
+        "@walmart", 
+        "@target", 
+        "@amazon", 
+        "@lowes", 
+        "@amazonhome", 
+        "@ikeausa", 
+        "@wayfair",
+        "@abanirugs",
+        "@anthropologie",
+        "@article",
+        "@beddys",
+        "@benjaminmoore",
+        "@besthomefurnishings",
+        "@bhglivebetter",
+        "@brightechshop",
+        "@brooklinen",
+        "@chilewich",
+        "@facebookmarketplace",
+        "@frameiteasy",
+        "@gardenersgardencenters",
+        "@hobbylobby",
+        "@homedepot",
+        "@homegoods",
+        "@homesensecanada",
+        "@ikeausa",
+        "@jcpenney",
+        "@kmartaus",
+        "@LIKEtoKNOW.it",
+        "@loloirugs",
+        "@lowes_canada",
+        "@loweshomeimprovement",
+        "@LTK",
+        "@ltk.home",
+        "@macys",
+        "@minted",
+        "@posterstore",
+        "@rugs_usa",
+        "@sherwinwilliams",
+        "@shop.ltk",
+        "@targetstyle",
+        "@target",
+        "@targetaus",
+        "@thecompanystore",
+        "@tjmaxx",
+        "@worldmarket",
+        "@ikeacanada",
+        "@casalunabytarget",
+        "@dollargeneral",
+        "@potterybarn",
+        "@wayfaircanada",
+        "@behrpaint",
+        "@kohler",
+        "@ikea",
+        "@liketoknow.it.",
+        "@ikeauk",
+        "@homedepotcanada",
+        "@ikeausa",
+    ]
+    deleted_ignores = []
+    document.addEventListener("DOMContentLoaded", function(event) {
+        let array_with_posts = document.getElementsByClassName("writer__post_caption");
+        Array.from(array_with_posts).forEach(ep => {
+            let delete_this = [];
+            let hastags = [];
+            let ignore = [];
+            let arr = ep.innerHTML.split("\n");
+            arr = arr.join(' ');
+            let words = []
+            let coord_ig_tri = false;
+            arr.split(" ").forEach(e => {
+                let text = e.replace("(","").replace(")","").replace(",","").replace("\n"," ").replace("!","").replace("~","").replace(":","").replace(";","");
+                
+
+                if (e.includes("#")) {
+                    hastags.push(e);
+                }
+                if (coord_ig_tri) {
+                    console.log(coord_ig_tri, text.toLowerCase());
+                    coord_ig_tri = sous(text.toLowerCase());
+                    ignore.push(text);
+                }
+                if (contains(ignore_list, text)) {
+                    ignore.push(text);
+                    deleted_ignores.push(text);
+                }
+                if ((contains(ignore_tri, text.toLowerCase()))) {
+                    console.log(text);
+                    coord_ig_tri = true;
+                }
+
+                if ((!contains(ignore, text)) && (text.includes("@"))) {
+                    console.log(text.split("\n"))
+                    delete_this.push(text);
+                }
+                words.push(text);
+              });
+            console.log(words);
+            console.log("========");
+            let text = ep.innerHTML;
+            
+
+            hastags.forEach(e=>{
+                //console.log("hastag - ",e);
+                text = text.replace(e, "");
+            })
+            let text1 = text
+            delete_this.forEach(e=>{
+                // console.log("tag - ",e);
+                text1 = text1.replace(e, " ");
+            })
+            
+            ep.innerHTML = "";
+            let output1 = patienceDiff(text.split(""), text1.split(""));
+            let dif1 = output1.lines;
+            
+            dif1.forEach(e => {
+                if (e.bIndex == -1) {
+                    ep.innerHTML += "<span style='background-color:green;color:white;'>"+ e.line + "</span>";
+                } 
+                else {
+                    ep.innerHTML += e.line;
+                }
+            })
+            //console.log(deleted_ignores);
+        });
+        
+
+    });
+    
+</script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+{% comment %} add tag for one post {% endcomment %}
+<script type="text/javascript">
+    (function($) {
+        $('.add_one_tag_btn').click(function(){
+            let postid = $(this).data('post_id');
+            let tagname = $(this).siblings(".new_tag_name").val();
+            const input_tag = $(this).siblings(".new_tag_name")
+            $.ajax({
+            type: 'post',
+            url: '/api/add_new_tag/',
+            data: {
+                'post_id': postid,
+                'tag_name': tagname,
+                'csrfmiddlewaretoken': window.CSRF_TOKEN 
+            },
+            success: function(data) {
+                // append html to the posts div
+                input_tag.val('');
+                $('#'+postid).find('.tags').html(data.posts_html);
+            },
+            error: function(xhr, status, error) {
+                // shit happens friends!
+            }
+            });
+        });
+        }(jQuery));
+</script>
+{% comment %} delete tag {% endcomment %}
+<script type="text/javascript">
+    $('.tags').click(function(event){
+        if (!$(event.target).closest('.delete_tag_btn')) return;
+        var postid = $(event.target).data('postid');
+        var tagname = $(event.target).data('tagname');
+        $.ajax({
+        type: 'post',
+        url: '/api/delete_tag/',
+        data: {
+            'post_id': postid,
+            'tag_name': tagname,
+            'csrfmiddlewaretoken': window.CSRF_TOKEN 
+        },
+        success: function(data) {
+            // append html to the posts div
+            $('#'+postid).find('.tags').html(data.posts_html);
+        },
+        error: function(xhr, status, error) {
+            // shit happens friends!
+        }
+        });
+    });
+</script>
+
+
+{% comment %} improving {% endcomment %}
+<script type="text/javascript">
+    (function($) {
+    $('.remove_post').click(function(){
+        
+        var postid = $(this).data('post');
+        var collid = $(this).data('coll');
+        console.log(postid, collid)
+        $.ajax({
+            type: 'post',
+            url: '/api/delete_post_form_collection/',
+            data: {
+                'post_id': postid,
+                'collid': collid,
+                'csrfmiddlewaretoken': window.CSRF_TOKEN
+            },
+            success: function(data) {
+                $('#'+postid).remove();
+            },
+            error: function(xhr, status, error) {
+                console.log("Oshibochka deleta")
+            }
+        });
+    });
+    }(jQuery));
+</script>

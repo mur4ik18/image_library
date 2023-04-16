@@ -1,0 +1,257 @@
+{% for project in object_list%}
+<div class="card" id="{{ project.id }}">
+    
+    {% if request.user.is_authenticated %}
+    <a class="img_container hide_imge" href="{% url 'page' project.id %}" target=”_blank”>
+        <img src="http://34.208.90.101{{project.image.url}}" alt="image">
+    </a>
+    <div class="tags_homepage">
+        <div class="tag__box">
+            <h6>Add tags</h6>
+            <span class="tag__box_form">
+                <input class="btn input new_tag_name" autocomplete="off"  type="text" name="add_tag_name">
+                <input class="add_one_tag_btn btn btn-primary btn-sm" value="Add" type="submit" data-post_id="{{project.id}}" data-title='{{title}}' name="add_tag_btn" >
+            </span>
+        </div>
+        <div class="tag__box tag__box_center">
+            <h6>Tags : </h6>
+            <div class="tags">
+                {% include 'import/non_improved_tags.html' %}
+            </div>
+            
+        </div>
+    </div>
+    {% else %}
+    <a class="img_container" href="{% url 'page' project.id %}" target=”_blank”>
+        <img src="{{project.image.url}}" alt="image">
+    </a>
+    {% endif %}
+    <h5>Author : {{project.author}}</h5>
+    {% comment %} <p>{{project.caption}}</p> {% endcomment %}
+    <div class="row">
+        <a href="{% url 'page' project.id %}" class="col-11" target=”_blank”>View more...</a>
+        {% if request.user.is_authenticated %}
+        <input type="checkbox" class="submit_it col-2" data-title='{{title}}' data-post_id="{{project.id}}">
+        {%endif%}
+    </div>
+    
+    {% if request.user.is_authenticated %}
+    
+    {% comment %} <a class="but_del but btn btn-primary btn-sm" data-id='{{ project.id }}' data-page='{{page_num}}'>Delete></a> {% endcomment %}
+    <div class="but3">
+        {% csrf_token %}
+        {% if collcount != 0 %}
+        <input list="brow" class='pop' placeholder='Choose the collection'>
+        <datalist id="brow" name="sellect_to_save_in_collection">
+        {% for coll in collections %}
+            <option value="{{coll.id}}">{{coll.title}}</option>
+        {% endfor %}
+        </datalist>  
+        <input type="hidden" name="post_id" class="post_id" value="{{ project.id }}">
+        <button class="add_to_collection btn btn-primary btn-sm">Add to collection</button>
+        {% else %}
+        Please create new collection!
+        {% endif %}
+        
+    </div>  
+    {%endif%}
+    <div class="but4">
+        {% for coll in project.collections.all %}
+            {{coll}}, 
+        {% endfor %}
+    </div>
+    
+</div>
+{% endfor%}
+
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+{% comment %} delete {% endcomment %}
+<script type="text/javascript">
+    $('.but_del').click(function(event){
+        var post_id =  $(this).data("id");
+        
+        var post_page = $(this).data('page');
+        var token = $(this).data('token');
+        console.log(token)
+        $.ajax({
+            type: 'post',
+            url: '/delete_product_home_pag/',
+            data: {
+                'post_id': post_id,
+                'post_page' : post_page,
+                'csrfmiddlewaretoken': window.CSRF_TOKEN
+            },
+            success: function(data) {
+                // append html to the posts div
+                $('#posts').html(data.posts_html);
+            },
+            error: function(xhr, status, error) {
+                console.log("Oshibochka deleta")
+            }
+        });
+    });
+</script>
+{% comment %} add to collection {% endcomment %}
+<script type="text/javascript">
+    $('.add_to_collection').click(function(event){
+        console.log("clicked");
+
+        var post_id =  $(this).siblings(".post_id").val();
+        var collection = $(this).siblings(".pop").val();
+
+        $.ajax({
+            type: 'post',
+            url: '/api/add_to_collection/',
+            data: {
+                'post_id': post_id,
+                'collection_id': collection,
+                'csrfmiddlewaretoken': window.CSRF_TOKEN // from index.html
+            },
+            success: function(data) {
+                // append html to the posts div
+                $('.pop').val('');
+                $('#'+post_id).find('.but4').append(collection+', ');
+            },
+            error: function(xhr, status, error) {
+                // shit happens friends!
+            }
+        });
+    });
+</script>
+{% comment %} delete tag {% endcomment %}
+<script type="text/javascript">
+    $('.tags').click(function(event){
+        if (!$(event.target).closest('.delete_tag_btn')) return;
+        var postid = $(event.target).data('postid');
+        var tagname = $(event.target).data('tagname');
+        $.ajax({
+        type: 'post',
+        url: '/api/delete_tag/',
+        data: {
+            'post_id': postid,
+            'tag_name': tagname,
+            'csrfmiddlewaretoken': window.CSRF_TOKEN 
+        },
+        success: function(data) {
+            // append html to the posts div
+            $('#'+postid).find('.tags').html(data.posts_html);
+        },
+        error: function(xhr, status, error) {
+            // shit happens friends!
+        }
+        });
+    });
+</script>
+{% comment %} add tag for one post {% endcomment %}
+<script type="text/javascript">
+    (function($) {
+        $('.add_one_tag_btn').click(function(){
+            let postid = $(this).data('post_id');
+            let tagname = $(this).siblings(".new_tag_name").val();
+            const input_tag = $(this).siblings(".new_tag_name")
+            $.ajax({
+            type: 'post',
+            url: '/api/add_new_tag/',
+            data: {
+                'post_id': postid,
+                'tag_name': tagname,
+                'csrfmiddlewaretoken': window.CSRF_TOKEN 
+            },
+            success: function(data) {
+                // append html to the posts div
+                input_tag.val('');
+                $('#'+postid).find('.tags').html(data.posts_html);
+            },
+            error: function(xhr, status, error) {
+                // shit happens friends!
+            }
+            });
+        });
+        }(jQuery));
+</script>
+<script type="text/javascript">
+    var len = 0;
+  
+    {% comment %} $('.delete_now').click(function(){
+      var inputs = new Array();
+      var page ;
+      $('.submit_it:checkbox:checked').each(function(){
+        inputs.push($(this).data('post_id'));
+        title = $(this).data('title')
+        });
+      
+      var str = inputs.toString();
+      console.log(str)
+      console.log(title)
+      if (inputs.length>=1) {
+        $.ajax({
+        type: 'post',
+        url: '/massive_delete_home_profiles/',
+        data: {
+            'postsid': str,
+            'post_title': title,
+            'csrfmiddlewaretoken': window.CSRF_TOKEN // from index.html
+        },
+        
+        success: function(data) {
+            // append html to the posts div
+            $('.submit_it:checkbox').prop('checked', false);
+            $('#posts').html(data.posts_html);
+            len = $('#result').html($('.submit_it:checkbox:checked').length + ' selected posts');
+            $('#massive_container').removeClass('show');
+        },
+        error: function(xhr, status, error) {
+            // shit happens friends!
+        }
+        });
+      };
+    });
+
+    $('.massive_add_to_collection').one('click',function(event){
+        var inputs = new Array();
+        var page ;
+        $('.submit_it:checkbox:checked').each(function(){
+            inputs.push($(this).data('post_id'));
+            title = $(this).data('title')
+            });
+        
+        var str = inputs.toString();
+        console.log(str)
+        var collection_name = $(this).siblings(".pop").val();
+
+        $.ajax({
+            type: 'post',
+            url: '/massive_add_to_collection_profiles/',
+            data: {
+                'post_id': str,
+                'collection_name': collection_name,
+                'post_title' : title,
+                'csrfmiddlewaretoken': window.CSRF_TOKEN // from index.html
+            },
+            success: function(data) {
+                // append html to the posts div
+                $('.submit_it:checkbox').prop('checked', false);
+                $('#posts').html(data.posts_html);
+                len = $('#result').html($('.submit_it:checkbox:checked').length + ' selected posts');
+                $('#massive_container').removeClass('show');
+            },
+            error: function(xhr, status, error) {
+                // shit happens friends!
+            }
+        });
+    }); {% endcomment %}
+
+  
+    $('.submit_it:checkbox').click(function(){
+      $('#result').html($('.submit_it:checkbox:checked').length + ' selected posts');
+      len = $('.submit_it:checkbox:checked').length
+      console.log(len)
+      if (len>=1){
+        $('#massive_container').addClass('show');
+      }
+      if (len == 0) {
+        $('#massive_container').removeClass('show');
+      }
+    });
+  </script>

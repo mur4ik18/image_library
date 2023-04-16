@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+{% block content%}
+<section class='collections_sections'>
+{% if request.user.is_authenticated %}
+<li class="list-group-item d-flex justify-content-between lh-condensed">
+    <h6 class="my-0">Create collection</h6>
+    <form method="POST" enctype="multipart/form-data">
+        {% csrf_token %}
+        <input type="text" name="create_collection_name">
+        <button class="btn btn-primary btn-sm" type="submit">Create</button>
+    </form>  
+</li>
+{%endif%}
+</section>
+<section class='collections_sections'>
+    <div class="container collections_box">
+        {% for collection in object_list%}
+            {% if collection.posts_count >= 1 %}
+                <a class="p-2 text-dark" href="{% url 'collections_solo' collection.id %}">{{collection.title}} {{ collection.posts_count }}</a>
+            {% else %}
+                <a class="p-2" href="{% url 'collections_solo' collection.id %}">{{collection.title}} {{ collection.posts_count }}</a>
+            {% endif %}
+        {% endfor %}
+    </div>
+    
+</section>
+
+{% endblock %}

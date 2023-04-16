@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<section class="conteiner">
+    {{title}}
+    <div id="links" class="row">
+        {% for folder in object_list %}
+        <div class="col-12">
+            <ul class="list-group mb-3">
+                <li class="list-group-item d-flex justify-content-between lh-condensed">
+                    <div>
+                    <h6 class="my-0">{{folder.title}}  ({{folder.posts_count}} images)</h6>
+                    {% if perms.posts_collections.view_writers_queue%}
+                    <p>writer: {% for member in folder.members.all %}{{member.username}} {%endfor%}</p>
+                    <!-- <small class="text-muted">Brief description</small> -->
+                    </div>
+                    {% endif %}
+                    <span class="text-muted"><a href="{% url 'writers_posts' folder.id %}?w={{accessed}}" target=”_blank”>Open Collection</a></span>
+                </li>
+            </ul>
+        </div>
+        {% endfor %}
+    </div>
+</section>
+<script type="text/javascript">
+    // A CSRF token is required when making post requests in Django
+    // To be used for making AJAX requests in script.js
+    window.CSRF_TOKEN = "{{ csrf_token }}";
+</script>
+
+{% endblock %}
