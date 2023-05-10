@@ -6,7 +6,7 @@ from rest_framework.views import APIView
 from posts.models import Post
 import csv
 import logging
-from .upload import *
+from .upload import UploadingProducts, IgnoreListUpload
 from posts_collections.models import Collection
 from .models import Non_approved
 from django.http import HttpResponse, HttpResponseRedirect
@@ -22,7 +22,7 @@ def upload_file(object):
 
 
 def ignore_list(object):
-    IgnoreListUpload(object, 0 ).parse_data()
+    IgnoreListUpload(object, 0).parse_data()
 
 
 def imp(request):
@@ -32,17 +32,16 @@ def imp(request):
         raise PermissionDenied
     if request.POST and 'upload' in request.POST:
         logger.error('start')
-        file = request.FILES.getlist('files')#['files']
+        file = request.FILES.getlist('files')
         print(file)
         for i in file:
-            async_function = sync_to_async(upload_file({"file":i}))
+            sync_to_async(upload_file({"file": i}))
     if request.POST and 'ignore_list' in request.POST:
         file = request.FILES['file']
-        async_function = sync_to_async(ignore_list({"file":file}))
-
-
+        sync_to_async(ignore_list({"file": file}))
     return render(request, 'import/load.html')
-    
+
+
 class ExportCSV(APIView):
     def get(self, request, *args, **kwargs):
         count = request.query_params.get('count')
@@ -100,7 +99,8 @@ class ExportCSV(APIView):
                 'account_link': data['account_link']})
         return response
 
-class NonApproved(LoginRequiredMixin,ListView):
+
+class NonApproved(LoginRequiredMixin, ListView):
     model = Non_approved
     template_name = 'import/non_impruved.html'
     context_object_name = 'name_folder'
@@ -124,12 +124,12 @@ class NonApproved(LoginRequiredMixin,ListView):
         return folders.order_by('name')
 
 
-class Folder(LoginRequiredMixin,ListView):
+class Folder(LoginRequiredMixin, ListView):
     def get_template_names(self):
         if self.request.user.has_perm('approve.view_non_approved'):
             pass
         else:
-            raise PermissionDenied 
+            raise PermissionDenied
         access = int(self.request.GET.get('accessed', 0))
         template_name = 'import/approved_solo.html' if access else 'import/non_improved_solo.html'
         return template_name
@@ -151,12 +151,11 @@ class Folder(LoginRequiredMixin,ListView):
     def get_queryset(self):
         return self.get_object().posts_in_folder.filter(accessed=self.request.GET.get('accessed', False)).prefetch_related("tags", "collections") 
 
-
-    def post(self,request, *args, **kwargs):  
+    def post(self, request, *args, **kwargs):  
         if self.request.user.has_perm('approve.change_non_approved'):
             pass
         else:
-            raise PermissionDenied 
+            raise PermissionDenied
         if 'Aprove_all' in request.POST:
             obj = self.get_object().posts_in_folder.filter(accessed=self.request.GET.get('accessed', False)).prefetch_related("tags")
             obj.update(accessed=True)

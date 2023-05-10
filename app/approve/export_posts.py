@@ -1,11 +1,9 @@
-from glob import glob
 import csv
 
 def download_all_data(data_):
     header_names = ['postID', 'account', 'post_url', 'image', 'date', 'likes', 'comments',
                             'caption', 'hashtags', 'mentions', 'text_comments', 'site_description','tags',
                             'alt_name','image_title','collections','edited','account_link']
-
 
     with open('files/export.csv', 'w', newline='') as csvfile:
         fieldnames = header_names
