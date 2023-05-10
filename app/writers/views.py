@@ -11,15 +11,14 @@ from django.core.exceptions import PermissionDenied
 from django.contrib.auth.decorators import user_passes_test
 from django.contrib.auth.models import User
 from .models import PostHistory, CollectionsHistory
-import csv
 from django.http import HttpResponse, HttpResponseRedirect
-import requests
 from datetime import date
+
 
 class Writers(LoginRequiredMixin, ListView):
     model = Collection
     template_name = 'writers/writers_queue.html'
-    
+
     def get_context_data(self, **kwargs):
         # Call the base implementation first to get a context
         context = super().get_context_data(**kwargs)
@@ -50,20 +49,18 @@ class Writers(LoginRequiredMixin, ListView):
                     posts__changed = self.request.GET.get('w', 0)
                 ))
             ).filter(members__id=self.request.user.id, for_changing=True)
-        
-        
         return_data = []
         for i in collections.prefetch_related("members").order_by('title'):
             if len(i.members.all()) != 0:
                 return_data.append(i)
             else:
                 i.for_changing = False
-        
         return return_data
+
 
 class Writers_posts(LoginRequiredMixin, ListView):
     model = Collection
-    
+
     def get_context_data(self, **kwargs):
         # Call the base implementation first to get a context
         context = super().get_context_data(**kwargs)
@@ -71,8 +68,8 @@ class Writers_posts(LoginRequiredMixin, ListView):
         obj = self.get_object()
         context['collection_id'] = self.kwargs.get('pk')
         context['collection_writer'] = obj.members.all()
-        return context    
-    
+        return context
+
     def get_template_names(self):
         access = int(self.request.GET.get('w', 0))
         if self.request.user.is_superuser or self.request.user.has_perm('posts_collections.view_writers_admin_queue'):
@@ -89,28 +86,7 @@ class Writers_posts(LoginRequiredMixin, ListView):
             obj.update(edited=True, edited_data=date.today())
             delete_changing_folder()
             return HttpResponseRedirect('/writer/?w=1')
-        
-        # if 'download' in request.POST and (self.request.user.is_superuser or self.request.user.has_perm('posts_collections.view_writers_admin_queue') ):
-        #     obj = self.get_object().posts.filter(changed= False, edited=False)
-        #     header_names = ['postID','photo','text','title','description']
-        #     response = HttpResponse(content_type='text/csv')
-        #     response['Content-Disposition'] = 'attachment; filename="export.csv"'
-        #     writer = csv.DictWriter(response, fieldnames=header_names)
-        #     writer.writeheader()
-        #     for post in obj:
-                
-        #         # ef = requests.get(f"http://34.208.90.101/images/{post.image}", stream=True)
-                
-        #         writer.writerow({
-        #             'postID': post.id,
-        #             'photo': f"http://34.208.90.101/images/{post.image}",
-        #             'text':post.caption,
-        #             'title':post.file_name,
-        #             'description':post.image_field,
-        #         })
-        #     return response
-            
-        
+
         if 'Autor_to_collection' in request.POST and (self.request.user.is_superuser or self.request.user.has_perm('posts_collections.view_writers_admin_queue') ):
             print(request.POST.get("Autor_to_collection"))
             obj = self.get_object()
@@ -126,36 +102,35 @@ class Writers_posts(LoginRequiredMixin, ListView):
     def get_queryset(self):
         return self.get_object().posts.filter(changed=self.request.GET.get('w', False), edited=False).prefetch_related('collections', 'tags')
 
+
 class Collections_history(LoginRequiredMixin, ListView):
     model = CollectionsHistory
     template_name = 'writers/history_queue.html'
-    
+
     def get_queryset(self):
         collections = self.model.objects.annotate(
             posts_count = Count('collections_history', filter=Q(
                 collections_history__post__edited = True
             ))
         )
-        return collections    
+        return collections
+
 
 class History_posts(LoginRequiredMixin, ListView):
     model = PostHistory
     template_name = 'writers/posts_history.html'
-       
+
     def get_context_data(self, **kwargs):
-        # Call the base implementation first to get a context
         context = super().get_context_data(**kwargs)
-        # Add in a QuerySet of all the books
         obj = self.get_object()
-        # context['collection_writer'] = obj.members.all()
-        return context  
-    
+        return context
+
     def get_object(self):
         obj = CollectionsHistory.objects.get(pk=self.kwargs.get('pk'))
-        
+
         # order_by('-id')
-        return obj 
-    
+        return obj
+
     def get_queryset(self):
         return self.get_object().collections_history.prefetch_related('writer', 'post', 'post__collections').filter(post__changed=True, post__edited=True)
-    
+

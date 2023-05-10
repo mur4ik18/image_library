@@ -19,9 +19,7 @@
                   <h6><input type="submit" name="rename_button" class='btn-primary btn-sm btn' value="Rename collection"></h6>
               </form>
             {% endif %}
-            {% comment %} {% if request.user.is_authenticated and perms.posts_collections.delete_collection%}      {% endcomment %}
               <h6><a class='btn-primary btn-sm btn' style="margin-left: 5px; height: 32px" href="{% url 'collections_solo_experimental' collection_id %}">Experimental</a></h6>
-            {% comment %} {% endif %} {% endcomment %}
           </div>
         </div>
         {% if request.user.is_authenticated and perms.posts_collections.view_collection%}
